@@ -2,7 +2,6 @@ require "./lib/chess_pieces"
 
 RSpec.describe ChessPiece do
 
-
   describe "#legal_move?" do
     it "returns true for a legal move for the calling piece" do
       piece = King.new
@@ -70,13 +69,6 @@ RSpec.describe ChessPiece do
       expect(piece.position).to eql([3, 2])
     end
   end
-
-
-
-
-
-
-
 
 
 
