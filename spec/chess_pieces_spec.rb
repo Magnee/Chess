@@ -63,8 +63,7 @@ RSpec.describe ChessPiece do
       expect(piece.position).to eql([3, 4])
     end
     it "correctly moves a black Pawn" do
-      piece = Pawn.new("black")
-      piece.position = [3, 3]
+      piece = Pawn.new([3, 3], "black")
       piece.move([3, 3], [3, 2])
       expect(piece.position).to eql([3, 2])
     end

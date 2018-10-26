@@ -14,7 +14,8 @@ end
 
 
 class King < ChessPiece
-  def initialize(color = "white")
+  def initialize(position = [0, 0], color = "white")
+    @position = position
     @color = color
     @art = color == "white" ? "\u2654 " : "\u265a "
     @moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
@@ -22,7 +23,8 @@ class King < ChessPiece
 end
 
 class Queen < ChessPiece
-  def initialize(color = "white")
+  def initialize(position = [0, 0], color = "white")
+    @position = position
     @color = color
     @art = color == "white" ? "\u2655 " : "\u265b "
     @moves = []
@@ -31,7 +33,8 @@ class Queen < ChessPiece
 end
 
 class Rook < ChessPiece
-  def initialize(color = "white")
+  def initialize(position = [0, 0], color = "white")
+    @position = position
     @color = color
     @art = color == "white" ? "\u2656 " : "\u265c "
     @moves = []
@@ -40,7 +43,8 @@ class Rook < ChessPiece
 end
 
 class Bishop < ChessPiece
-  def initialize(color = "white")
+  def initialize(position = [0, 0], color = "white")
+    @position = position
     @color = color
     @art = color == "white" ? "\u2657 " : "\u265d "
     @moves = []
@@ -49,7 +53,8 @@ class Bishop < ChessPiece
 end
 
 class Knight < ChessPiece
-  def initialize(color = "white")
+  def initialize(position = [0, 0], color = "white")
+    @position = position
     @color = color
     @art = color == "white" ? "\u2658 " : "\u265e "
     @moves = [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]]
@@ -57,7 +62,8 @@ class Knight < ChessPiece
 end
 
 class Pawn < ChessPiece
-  def initialize(color = "white")
+  def initialize(position = [0, 0], color = "white")
+    @position = position
     @color = color
     @art = color == "white" ? "\u2659 " : "\u265f "
     @moves = color == "white" ? @moves = [[0, 1]] : @moves = [[0, -1]]
