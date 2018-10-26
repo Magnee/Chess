@@ -2,18 +2,8 @@ class ChessPiece
   attr_reader :art, :color
   attr_accessor :position
 
-  def initialize(color = "white")
-    @color = color
-  end
-
   def legal_move?(start, finish)
-    legal = false
-    @moves.each do |move|
-      if start[0] + move[0] == finish[0] && start[1] + move[1] == finish[1]
-        legal = true
-      end
-    end
-    legal
+    @moves.any?{ |move| start[0] + move[0] == finish[0] && start[1] + move[1] == finish[1] }
   end
 
   def move(start, finish)
@@ -21,7 +11,6 @@ class ChessPiece
   end
 
 end
-
 
 
 class King < ChessPiece
@@ -83,4 +72,4 @@ end
 
 
 
-#oef
+#eof
