@@ -12,6 +12,12 @@ class ChessBoard
     end
   end
 
+  def place_piece(*pieces)
+    pieces.each do |piece|
+      @board[piece.position[1]][piece.position[0]] = piece.art
+    end
+  end
+
   def show_board
     r = 8
     @board.reverse.each do |rank|
