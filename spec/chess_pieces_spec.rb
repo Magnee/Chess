@@ -27,6 +27,48 @@ RSpec.describe ChessPiece do
       piece.move([3, 3], [4, 5])
       expect(piece.position).to eql([3, 3])
     end
+    it "correctly moves a King" do
+      piece = King.new
+      piece.position = [3, 3]
+      piece.move([3, 3], [4, 4])
+      expect(piece.position).to eql([4, 4])
+    end
+    it "correctly moves a Queen" do
+      piece = Queen.new
+      piece.position = [2, 3]
+      piece.move([2, 3], [4, 1])
+      expect(piece.position).to eql([4, 1])
+    end
+    it "correctly moves a Rook" do
+      piece = Rook.new
+      piece.position = [3, 3]
+      piece.move([3, 3], [3, 6])
+      expect(piece.position).to eql([3, 6])
+    end
+    it "correctly moves a Bishop" do
+      piece = Bishop.new
+      piece.position = [3, 3]
+      piece.move([3, 3], [6, 6])
+      expect(piece.position).to eql([6, 6])
+    end
+    it "correctly moves a Knight" do
+      piece = Knight.new
+      piece.position = [3, 3]
+      piece.move([3, 3], [4, 5])
+      expect(piece.position).to eql([4, 5])
+    end
+    it "correctly moves a white Pawn" do
+      piece = Pawn.new
+      piece.position = [3, 3]
+      piece.move([3, 3], [3, 4])
+      expect(piece.position).to eql([3, 4])
+    end
+    it "correctly moves a black Pawn" do
+      piece = Pawn.new("black")
+      piece.position = [3, 3]
+      piece.move([3, 3], [3, 2])
+      expect(piece.position).to eql([3, 2])
+    end
   end
 
 
