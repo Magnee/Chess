@@ -10,7 +10,15 @@ class ChessPiece
     @position = finish if legal_move?(start, finish)
   end
 
+  def possible_targets(start = self.position)
+    targets = []
+    @moves.each { |move| targets << [start[0] + move[0], start[1] + move[1]] }
+    targets
+  end
+
 end
+
+
 
 
 class King < ChessPiece

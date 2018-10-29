@@ -69,6 +69,17 @@ RSpec.describe ChessPiece do
     end
   end
 
+  describe "#possible_targets" do
+    it "returns an array of positions the piece can make a move to" do
+      king = King.new([3, 3])
+      expect(king.possible_targets([3, 3])).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
+    end
+    it "uses a piece's current position as start if none is given" do
+      king = King.new([3, 3])
+      expect(king.possible_targets).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
+    end
+
+  end
 
 
 
