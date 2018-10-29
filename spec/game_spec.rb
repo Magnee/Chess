@@ -19,7 +19,20 @@ RSpec.describe Game do
     end
   end
 
+  describe "#get_player" do
+    it "returns the current player (white / black)" do
+      game = Game.new
+      game.instance_variable_set(:@turn, 7)
+      expect(game.get_player).to eql("white")
+    end
+  end
 
+  describe "#get_piece" do
+    it "returns the piece at the given location" do
+      game = Game.new
+      expect(game.get_piece([3, 6])).to eql(game.instance_variable_get(:@black_pawn4))
+    end
+  end
 
 
 

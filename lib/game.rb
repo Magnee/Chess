@@ -2,10 +2,12 @@ require_relative "chess_board"
 require_relative "chess_pieces"
 
 class Game
-  attr_accessor :game_board
+  attr_accessor :game_board, :turn
+  attr_reader :pieces
 
   def initialize
     setup
+    @turn = 1
   end
 
   def setup
@@ -51,6 +53,16 @@ class Game
       @black_pawn1, @black_pawn2, @black_pawn3, @black_pawn4,
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
     @game_board.place_piece(*@pieces)
+  end
+
+  def get_player
+    @player = turn%2 != 0 ? "white" : "black"
+  end
+
+  def get_piece(location)
+    @pieces.each do |piece|
+      return piece if piece.position == location
+    end
   end
 
 
