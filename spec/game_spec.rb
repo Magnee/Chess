@@ -34,6 +34,17 @@ RSpec.describe Game do
     end
   end
 
+  describe "#blocked_path?" do
+    it "returns true if the path of a move contains another piece" do
+      game = Game.new
+      king = King.new([3, 3])
+      queen = Queen.new([1, 1])
+      game.instance_variable_set(:@pieces, [king, queen])
+      path = queen.get_path([5, 5])
+      expect(game.blocked_path?(path)).to eql(true)
+    end
+  end
+
 
 
 

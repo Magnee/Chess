@@ -63,7 +63,16 @@ class Game
     @pieces.each do |piece|
       return piece if piece.position == location
     end
+    nil
   end
+
+  def blocked_path?(path_array)
+    path_array.each do |step|
+      return true if get_piece(step)
+    end
+    false
+  end
+
 
 
 end
