@@ -27,6 +27,7 @@ RSpec.describe ChessBoard do
     end
   end
 
+
   describe "#legal_position?" do
     it "returns true for a position on the board" do
       board = ChessBoard.new
@@ -34,7 +35,7 @@ RSpec.describe ChessBoard do
     end
     it "returns false for a position off the board" do
       board = ChessBoard.new
-      expect(board.legal_position?([6, 9])).to eql(false)
+      expect(board.legal_position?([0, -1])).to eql(false)
     end
   end
 

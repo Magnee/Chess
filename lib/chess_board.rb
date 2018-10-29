@@ -40,6 +40,7 @@ class ChessBoard
   end
 
   def legal_position?(position)
+    return false if position[0] < 0 || position[1] < 0
     @board[position[1]] != nil && @board[position[1]][position[0]] != nil
   end
 
