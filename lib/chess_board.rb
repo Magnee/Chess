@@ -1,14 +1,21 @@
 class ChessBoard
   attr_accessor :board
+  Empty = "  "
 
   def initialize
     @board = []
     0.upto(7) do |y|
       rank = []
       0.upto(7) do |x|
-        rank << "  "
+        rank << Empty
       end
       @board << rank
+    end
+  end
+
+  def empty_square(*positions)
+    positions.each do |position|
+      @board[position[1]][position[0]] = Empty
     end
   end
 
