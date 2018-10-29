@@ -16,6 +16,37 @@ class ChessPiece
     targets
   end
 
+  def get_path(start = self.position, finish)
+    path = []
+    move = [finish[0] - start[0], finish[1] - start[1]]
+    if move[0] == 0
+      if move[1] >= 0
+        (1...move[1]).each { |y| path << [start[0], start[1] + y] }
+      else
+        (1...-move[1]).each { |y| path << [start[0], start[1] - y] }
+      end
+    elsif move[1] == 0
+      if move[0] >= 0
+        (1...move[0]).each { |x| path << [start[0] + x, start[1]] }
+      else
+        (1...-move[0]).each { |x| path << [start[0] - x, start[1]] }
+      end
+    elsif move[0] == move[1]
+      if move[0] >= 0
+        (1...move[0]).each { |z| path << [start[0] + z, start[1] + z] }
+      else
+        (1...-move[0]).each { |z| path << [start[0] - z, start[1] - z] }
+      end
+    elsif move[0] == -move[1]
+      if move[0] >= 0
+        (1...move[0]).each { |z| path << [start[0] + z, start[1] - z] }
+      else
+        (1...-move[0]).each { |z| path << [start[0] - z, start[1] + z] }
+      end
+    end
+    path
+  end
+
 end
 
 

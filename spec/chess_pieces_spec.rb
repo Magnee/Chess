@@ -78,7 +78,45 @@ RSpec.describe ChessPiece do
       king = King.new([3, 3])
       expect(king.possible_targets).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
     end
+  end
 
+  describe "#get_path" do
+    it "returns an array of the spaces passed on a move from start to finish" do
+      queen = Queen.new([1, 1])
+      expect(queen.get_path([4, 4])).to eql([[2, 2], [3, 3]])
+    end
+    it "works on horizontal movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([6, 3])).to eql([[4, 3], [5, 3]])
+    end
+    it "works on vertical movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([3, 6])).to eql([[3, 4], [3, 5]])
+    end
+    it "works on diagonal movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([6, 6])).to eql([[4, 4], [5, 5]])
+    end
+    it "works on cross-diagonal movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([6, 0])).to eql([[4, 2], [5, 1]])
+    end
+    it "handles negative horizontal movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([0, 3])).to eql([[2, 3], [1, 3]])
+    end
+    it "handles negative vertical movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([3, 0])).to eql([[3, 2], [3, 1]])
+    end
+    it "handles negative diagonal movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([0, 0])).to eql([[2, 2], [1, 1]])
+    end
+    it "handles negative cross diagonal movements" do
+      queen = Queen.new([3, 3])
+      expect(queen.get_path([0, 6])).to eql([[2, 4], [1, 5]])
+    end
   end
 
 
