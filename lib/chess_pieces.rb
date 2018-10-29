@@ -74,7 +74,11 @@ class Pawn < ChessPiece
     @position = position
     @color = color
     @art = color == "white" ? "\u2659 " : "\u265f "
-    @moves = color == "white" ? @moves = [[0, 1]] : @moves = [[0, -1]]
+    if color == "white"
+      @moves = @position[1] == 1 ? [[0, 1], [0, 2]] : [[0, 1]]
+    else
+      @moves = @position[1] == 6 ? [[0, -1], [0, -2]] : [[0, -1]]
+    end
   end
 end
 
