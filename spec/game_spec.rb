@@ -45,7 +45,29 @@ RSpec.describe Game do
     end
   end
 
+  describe "#evaluate_move" do
+    it "warns if the player attempts to move an enemy piece" do
+      game = Game.new
+      expect(game.evaluate_move([0, 6], [0, 5])).to eql("can't move other player's piece, ")
+    end
+    it "warns if the target is a piece owned by the player" do
+      game = Game.new
+      expect(game.evaluate_move([0, 0], [0, 1])).to eql("can't hit own piece, ")
+    end
+    it "warns if attempting to move off the board" do
+      game = Game.new
+      expect(game.evaluate_move([0, 0], [0, -1])).to eql("can't move of the board, ")
+    end
+    it "warns if attempting the wrong move for the piece" do
+      game = Game.new
+      expect(game.evaluate_move([0, 1], [1, 3])).to eql("piece doesn't move that way, ")
+    end
+    it "warns if the move is blocked" do
+      game = Game.new
+      expect(game.evaluate_move([0, 0], [0, 3])).to eql("that path is blocked, ")
+    end
 
+  end
 
 
 

@@ -73,7 +73,27 @@ class Game
     false
   end
 
-
+  def evaluate_move(start, finish)
+    piece = get_piece(start)
+    target = get_piece(finish)
+    comment = ""
+    if piece.color != get_player
+      comment += "can't move other player's piece, "
+    end
+    if target != nil && target.color == get_player
+      comment += "can't hit own piece, "
+    end
+    if @game_board.legal_position?(finish) == false
+      comment += "can't move of the board, "
+    end
+    if piece.legal_move?(start, finish) == false
+      comment += "piece doesn't move that way, "
+    end
+    if blocked_path?(piece.get_path(start, finish))
+      comment += "that path is blocked, "
+    end
+    comment
+  end
 
 end
 
