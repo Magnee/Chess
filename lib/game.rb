@@ -7,7 +7,7 @@ class Game
 
   def initialize
     setup
-    @turn = 1
+    @turn = 0
   end
 
   def setup
@@ -93,6 +93,15 @@ class Game
       comment += "that path is blocked, "
     end
     comment
+  end
+
+  def play_round
+    @turn += 1
+#    @game_board.show_board
+  end
+
+  def play_game
+    play_round
   end
 
 end
