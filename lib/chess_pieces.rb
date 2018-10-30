@@ -1,5 +1,5 @@
 class ChessPiece
-  attr_reader :art, :color
+  attr_reader :art, :color, :type
   attr_accessor :position
 
   def legal_move?(start, finish)
@@ -54,6 +54,7 @@ end
 
 class King < ChessPiece
   def initialize(position = [0, 0], color = "white")
+    @type = "king"
     @position = position
     @color = color
     @art = color == "white" ? "\u2654 " : "\u265a "
@@ -63,6 +64,7 @@ end
 
 class Queen < ChessPiece
   def initialize(position = [0, 0], color = "white")
+    @type = "queen"
     @position = position
     @color = color
     @art = color == "white" ? "\u2655 " : "\u265b "
@@ -73,6 +75,7 @@ end
 
 class Rook < ChessPiece
   def initialize(position = [0, 0], color = "white")
+    @type = "rook"
     @position = position
     @color = color
     @art = color == "white" ? "\u2656 " : "\u265c "
@@ -83,6 +86,7 @@ end
 
 class Bishop < ChessPiece
   def initialize(position = [0, 0], color = "white")
+    @type = "bishop"
     @position = position
     @color = color
     @art = color == "white" ? "\u2657 " : "\u265d "
@@ -93,6 +97,7 @@ end
 
 class Knight < ChessPiece
   def initialize(position = [0, 0], color = "white")
+    @type = "knight"
     @position = position
     @color = color
     @art = color == "white" ? "\u2658 " : "\u265e "
@@ -102,6 +107,7 @@ end
 
 class Pawn < ChessPiece
   def initialize(position = [0, 0], color = "white")
+    @type = "pawn"
     @position = position
     @color = color
     @art = color == "white" ? "\u2659 " : "\u265f "
