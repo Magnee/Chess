@@ -40,7 +40,7 @@ class ChessBoard
       @board.each_with_index do |rank, i|
         print "\n    -- -- -- -- -- -- -- --"
         print "\n #{i + 1} |"
-        rank.each do |file|
+        rank.reverse.each do |file|
           print "#{file}|"
         end
       end
