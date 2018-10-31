@@ -126,6 +126,11 @@ class Game
     return [piece.position, finish]
   end
 
+  def make_move(piece, move)
+    piece.move(move[0], move[1])
+    @game_board.empty_square(move[0])
+    @game_board.place_piece(piece)
+  end
 
 
   def play_round
@@ -142,11 +147,14 @@ class Game
       a = evaluate_move(move[0], move[1])
     end
 
+    make_move(piece, move)
+
   end
 
   def play_game
-    play_round
-    play_round
+    loop do
+      play_round
+    end
   end
 
 end
