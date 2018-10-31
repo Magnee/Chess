@@ -141,15 +141,27 @@ class Game
     if target != nil
       puts "#{target.color.capitalize} #{target.type.capitalize} captured!"
       @pieces.delete(target)
-      puts @pieces.to_s
     end
   end
+
+  def check?
+    check = false
+    @pieces.each do |piece|
+      if piece.color == "white" && piece.possible_targets.include?(@black_king.position)
+        check = "black"
+      elsif piece.color == "black" && piece.possible_targets.include?(@white_king.position)
+        check = "white"
+      end
+    end
+    puts "#{check.capitalize} King in check! " unless check == false
+    check
+  end
+
 
   def play_round
     @turn += 1
     get_player
     @game_board.show_board(@player)
-
     a = "no"
     while a != ""
       @game_board.show_board(@player) if a != "no"
@@ -160,7 +172,7 @@ class Game
     end
     capture(move[1])
     make_move(piece, move)
-
+    check?
   end
 
   def play_game
