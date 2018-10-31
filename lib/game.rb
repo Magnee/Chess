@@ -132,6 +132,14 @@ class Game
     @game_board.place_piece(piece)
   end
 
+  def capture(location)
+    target = get_piece(location)
+    if target != nil
+      @pieces -= target
+      puts "#{target.color.capitalize} #{target.type.capitalize} captured!"
+      puts @pieces.to_s
+    end
+  end
 
   def play_round
     @turn += 1
@@ -146,7 +154,7 @@ class Game
       move = get_player_move(piece)
       a = evaluate_move(move[0], move[1])
     end
-
+    capture(move[1])
     make_move(piece, move)
 
   end
