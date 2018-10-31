@@ -3,7 +3,7 @@ require_relative "chess_pieces"
 
 class Game
   attr_accessor :game_board, :turn
-  attr_reader :pieces
+  attr_reader :pieces, :player
 
   def initialize
     setup
@@ -129,13 +129,14 @@ class Game
   def play_round
     @turn += 1
     get_player
-    @game_board.show_board
+    @game_board.show_board(@player)
     piece = get_player_piece
     move = get_player_move(piece)
     evaluate_move(move[0], move[1])
   end
 
   def play_game
+    play_round
     play_round
   end
 

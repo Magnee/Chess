@@ -25,22 +25,32 @@ class ChessBoard
     end
   end
 
-  def show_board
-    r = 8
-    @board.reverse.each do |rank|
-      print "\n    -- -- -- -- -- -- -- --"
-      print "\n #{r} |"
-      rank.each do |file|
-        print "#{file}|"
+  def show_board(player)
+    if player == "white"
+      @board.reverse.each_with_index do |rank, i|
+        print "\n    -- -- -- -- -- -- -- --"
+        print "\n #{8 - i} |"
+        rank.each do |file|
+          print "#{file}|"
+        end
       end
-      r -= 1
+      print "\n    -- -- -- -- -- -- -- --"
+      puts "\n    a  b  c  d  e  f  g  h \n "
+    elsif player == "black"
+      @board.each_with_index do |rank, i|
+        print "\n    -- -- -- -- -- -- -- --"
+        print "\n #{i + 1} |"
+        rank.each do |file|
+          print "#{file}|"
+        end
+      end
+      print "\n    -- -- -- -- -- -- -- --"
+      puts "\n    h  g  f  e  d  c  b  a \n "
     end
-    print "\n    -- -- -- -- -- -- -- --"
-    puts "\n    a  b  c  d  e  f  g  h"
   end
 
   def legal_position?(position)
-    return false if position[0] < 0 || position[1] < 0
+      return false if position[0] < 0 || position[1] < 0
     @board[position[1]] != nil && @board[position[1]][position[0]] != nil
   end
 
