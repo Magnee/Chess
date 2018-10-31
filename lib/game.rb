@@ -106,6 +106,10 @@ class Game
       print "Row (1-8): "
       start[1] = gets.chomp.to_i - 1
     end
+    if get_piece(start) == nil
+      puts "Selected empty square"
+      get_player_piece
+    end
     puts "Selected #{get_piece(start).color.capitalize} #{get_piece(start).type.capitalize} at #{("a".."h").to_a[start[0]]}#{start[1] + 1}"
     return get_piece(start)
   end
@@ -135,8 +139,8 @@ class Game
   def capture(location)
     target = get_piece(location)
     if target != nil
-      @pieces -= target
       puts "#{target.color.capitalize} #{target.type.capitalize} captured!"
+      @pieces.delete(target)
       puts @pieces.to_s
     end
   end
