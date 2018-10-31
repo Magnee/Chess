@@ -92,12 +92,12 @@ class Game
     if blocked_path?(piece.get_path(start, finish))
       comment += "that path is blocked, "
     end
-    puts "#{comment}"
+    return "#{comment}"
   end
 
   def get_player_piece
     start = []
-    puts "Select piece"
+    puts "Player #{@player.capitalize}, select piece"
     until (0..7) === start[0]
       print "Column (a-h): "
       start[0] = ("a".."h").to_a.index(gets.chomp.downcase)
@@ -106,13 +106,13 @@ class Game
       print "Row (1-8): "
       start[1] = gets.chomp.to_i - 1
     end
-    puts "Selected #{@player.capitalize} #{get_piece(start).type.capitalize} at #{("a".."h").to_a[start[0]]}#{start[1] + 1}"
+    puts "Selected #{get_piece(start).color.capitalize} #{get_piece(start).type.capitalize} at #{("a".."h").to_a[start[0]]}#{start[1] + 1}"
     return get_piece(start)
   end
 
   def get_player_move(piece)
     finish = []
-    puts "Move #{@player.capitalize} #{piece.type.capitalize} to?"
+    puts "Move #{piece.color.capitalize} #{piece.type.capitalize} to?"
     until (0..7) === finish[0]
       print "Column (a-h): "
       finish[0] = ("a".."h").to_a.index(gets.chomp.downcase)
@@ -122,17 +122,26 @@ class Game
       finish[1] = gets.chomp.to_i - 1
     end
     target = get_piece(finish) != nil ? "#{get_piece(finish).color.capitalize} #{get_piece(finish).type.capitalize}" : "empty square"
-    puts "Move #{@player.capitalize} #{piece.type.capitalize} to #{("a".."h").to_a[finish[0]]}#{finish[1] + 1}: #{target}"
+    puts "Move #{piece.color.capitalize} #{piece.type.capitalize} to #{("a".."h").to_a[finish[0]]}#{finish[1] + 1}: #{target}"
     return [piece.position, finish]
   end
+
+
 
   def play_round
     @turn += 1
     get_player
     @game_board.show_board(@player)
-    piece = get_player_piece
-    move = get_player_move(piece)
-    evaluate_move(move[0], move[1])
+
+    a = "no"
+    while a != ""
+      @game_board.show_board(@player) if a != "no"
+      puts a if a != "no"
+      piece = get_player_piece
+      move = get_player_move(piece)
+      a = evaluate_move(move[0], move[1])
+    end
+
   end
 
   def play_game
@@ -142,5 +151,5 @@ class Game
 
 end
 
-a = Game.new.play_game
+  a = Game.new.play_game
 #eof
