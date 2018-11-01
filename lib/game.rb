@@ -157,6 +157,12 @@ class Game
     check
   end
 
+  def mate?
+  end
+
+  def checkmate?
+    check? && mate?
+  end
 
   def play_round
     @turn += 1
@@ -178,7 +184,9 @@ class Game
   def play_game
     loop do
       play_round
+      break if mate?
     end
+    puts "Checkmate" if checkmate?
   end
 
 end
