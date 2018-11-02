@@ -4,7 +4,7 @@ require "./lib/game.rb"
 
 RSpec.describe Game do
 
-  describe "#setup" do
+  describe "#initialize" do
     it "creates a white King at its starting position" do
       game = Game.new
       expect(game.instance_variable_get(:@white_king).position).to eql([4, 0])
@@ -73,16 +73,6 @@ RSpec.describe Game do
       expect(game.evaluate_move([1, 0], [0, 2])).not_to include("that path is blocked, ")
     end
   end
-
-=begin
-  describe "#play_round" do
-    it "increments the turn" do
-      game = Game.new
-      game.play_round
-      expect(game.instance_variable_get(:@turn)).to eql(1)
-    end
-  end
-=end
 
 
 
