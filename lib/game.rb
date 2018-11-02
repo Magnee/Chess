@@ -2,6 +2,8 @@ require_relative "chess_board"
 require_relative "chess_pieces"
 
 class Game
+  require "json"
+
   attr_accessor :game_board, :turn
   attr_reader :pieces, :player
 
@@ -187,6 +189,13 @@ class Game
       break if mate?
     end
     puts "Checkmate" if checkmate?
+  end
+
+  def serialize
+    JSON.generate({
+      turn: @turn,
+
+    })
   end
 
 end
