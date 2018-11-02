@@ -2,17 +2,20 @@ class ChessPiece
   attr_reader :art, :color, :type
   attr_accessor :position
 
-  def legal_move?(start, finish)
+  def legal_move?(start = self.position, finish)
     @moves.any?{ |move| start[0] + move[0] == finish[0] && start[1] + move[1] == finish[1] }
   end
 
-  def move(start, finish)
-    @position = finish if legal_move?(start, finish)
+  def legal_position?(position)
+    legal = (0..7) === position[0] && (0..7) === position[1] ? true : false
   end
 
-  def possible_targets(start = self.position)
+  def possible_move_ends(start = self.position)
     targets = []
-    @moves.each { |move| targets << [start[0] + move[0], start[1] + move[1]] }
+    @moves.each do |move|
+      target = [start[0] + move[0], start[1] + move[1]]
+      targets << target if legal_position?(target)
+    end
     targets
   end
 
@@ -47,8 +50,11 @@ class ChessPiece
     path
   end
 
-end
+  def move_to(finish)
+    @position = finish
+  end
 
+end
 
 
 
@@ -118,13 +124,3 @@ class Pawn < ChessPiece
     end
   end
 end
-
-
-
-
-
-
-
-
-
-#eof

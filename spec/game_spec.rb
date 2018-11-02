@@ -68,6 +68,10 @@ RSpec.describe Game do
       game = Game.new
       expect(game.evaluate_move([0, 0], [0, 3])).to include("that path is blocked, ")
     end
+    it "ignores path blocking for knights" do
+      game = Game.new
+      expect(game.evaluate_move([1, 0], [0, 2])).not_to include("that path is blocked, ")
+    end
   end
 
 =begin

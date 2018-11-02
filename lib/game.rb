@@ -8,11 +8,6 @@ class Game
   attr_reader :pieces, :player
 
   def initialize
-    setup
-    @turn = 1
-  end
-
-  def setup
     @game_board = ChessBoard.new
     @white_king = King.new([4, 0])
     @white_queen = Queen.new([3, 0])
@@ -55,6 +50,7 @@ class Game
       @black_pawn1, @black_pawn2, @black_pawn3, @black_pawn4,
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
     @game_board.place_piece(*@pieces)
+    @turn = 1
   end
 
   def get_player
@@ -85,13 +81,13 @@ class Game
     if target != nil && target.color == get_player
       comment += "can't hit own piece, "
     end
-    if @game_board.legal_position?(finish) == false
+    if piece.legal_position?(finish) == false
       comment += "can't move of the board, "
     end
     if piece.legal_move?(start, finish) == false
       comment += "piece doesn't move that way, "
     end
-    if blocked_path?(piece.get_path(start, finish))
+    if blocked_path?(piece.get_path(start, finish)) && piece.type != "knight"
       comment += "that path is blocked, "
     end
     return "#{comment}"
@@ -133,7 +129,7 @@ class Game
   end
 
   def make_move(piece, move)
-    piece.move(move[0], move[1])
+    piece.move_to(move[1])
     @game_board.empty_square(move[0])
     @game_board.place_piece(piece)
   end
@@ -149,9 +145,9 @@ class Game
   def check?
     check = false
     @pieces.each do |piece|
-      if piece.color == "white" && piece.possible_targets.include?(@black_king.position)
+      if piece.color == "white" && piece.possible_move_ends.include?(@black_king.position)
         check = "black"
-      elsif piece.color == "black" && piece.possible_targets.include?(@white_king.position)
+      elsif piece.color == "black" && piece.possible_move_ends.include?(@white_king.position)
         check = "white"
       end
     end

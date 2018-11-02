@@ -13,70 +13,34 @@ RSpec.describe ChessPiece do
     end
   end
 
-  describe "#move" do
-    it "moves a piece from start position to finish position" do
+  describe "#legal_position?" do
+    it "returns true for a legal position" do
       piece = King.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [4, 4])
-      expect(piece.position).to eql([4, 4])
+      expect(piece.legal_position?([3, 4])).to eql(true)
     end
-    it "does not move a piece if the move would be illegal" do
+    it "returns false for an illegal position" do
       piece = King.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [4, 5])
-      expect(piece.position).to eql([3, 3])
+      expect(piece.legal_position?([1, -1])).to eql(false)
     end
-    it "correctly moves a King" do
+    it "can handle weird input" do
       piece = King.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [4, 4])
-      expect(piece.position).to eql([4, 4])
+      expect(piece.legal_position?("apple")).to eql(false)
     end
-    it "correctly moves a Queen" do
-      piece = Queen.new
-      piece.position = [2, 3]
-      piece.move([2, 3], [4, 1])
-      expect(piece.position).to eql([4, 1])
-    end
-    it "correctly moves a Rook" do
-      piece = Rook.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [3, 6])
-      expect(piece.position).to eql([3, 6])
-    end
-    it "correctly moves a Bishop" do
-      piece = Bishop.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [6, 6])
-      expect(piece.position).to eql([6, 6])
-    end
-    it "correctly moves a Knight" do
-      piece = Knight.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [4, 5])
-      expect(piece.position).to eql([4, 5])
-    end
-    it "correctly moves a white Pawn" do
-      piece = Pawn.new
-      piece.position = [3, 3]
-      piece.move([3, 3], [3, 4])
-      expect(piece.position).to eql([3, 4])
-    end
-    it "correctly moves a black Pawn" do
-      piece = Pawn.new([3, 3], "black")
-      piece.move([3, 3], [3, 2])
-      expect(piece.position).to eql([3, 2])
-    end
+
   end
 
-  describe "#possible_targets" do
+  describe "#possible_move_ends" do
     it "returns an array of positions the piece can make a move to" do
       king = King.new([3, 3])
-      expect(king.possible_targets([3, 3])).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
+      expect(king.possible_move_ends([3, 3])).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
     end
     it "uses a piece's current position as start if none is given" do
       king = King.new([3, 3])
-      expect(king.possible_targets).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
+      expect(king.possible_move_ends).to eql([[3, 4], [4, 4], [4, 3], [4, 2], [3, 2], [2, 2], [2, 3], [2, 4]])
+    end
+    it "excludes illegal positions" do
+      king = King.new([0, 0])
+      expect(king.possible_move_ends).to eql([[0, 1], [1, 1], [1, 0]])
     end
   end
 
@@ -119,6 +83,13 @@ RSpec.describe ChessPiece do
     end
   end
 
-
+  describe "#move_to" do
+    it "moves a piece to a position" do
+      piece = King.new
+      piece.position = [3, 3]
+      piece.move_to([4, 4])
+      expect(piece.position).to eql([4, 4])
+    end
+  end
 
 end
