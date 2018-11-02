@@ -9,7 +9,7 @@ class Game
 
   def initialize
     setup
-    @turn = 0
+    @turn = 1
   end
 
   def setup
@@ -167,7 +167,6 @@ class Game
   end
 
   def play_round
-    @turn += 1
     get_player
     @game_board.show_board(@player)
     a = "no"
@@ -187,6 +186,7 @@ class Game
     loop do
       play_round
       break if mate?
+      @turn += 1
     end
     puts "Checkmate" if checkmate?
   end
@@ -194,11 +194,39 @@ class Game
   def serialize
     JSON.generate({
       turn: @turn,
-
+      white_king: @white_king,
+      white_quee: @white_queen,
+      white_rook1: @white_rook1,
+      white_rook2: @white_rook2,
+      white_bishop1: @white_bishop1,
+      white_bishop2: @white_bishop2,
+      white_knight1: @white_knight1,
+      white_knight2: @white_knight2,
+      white_pawn1: @white_pawn1,
+      white_pawn2: @white_pawn2,
+      white_pawn3: @white_pawn3,
+      white_pawn4: @white_pawn4,
+      white_pawn5: @white_pawn5,
+      white_pawn6: @white_pawn6,
+      white_pawn7: @white_pawn7,
+      white_pawn8: @white_pawn8,
+      black_king: @black_king,
+      black_queen: @black_queen,
+      black_rook1: @black_rook1,
+      black_rook2: @black_rook2,
+      black_bishop1: @black_bishop1,
+      black_bishop2: @black_bishop2,
+      black_knight1: @black_knight1,
+      black_knight2: @black_knight2,
+      black_pawn1: @black_pawn1,
+      black_pawn2: @black_pawn2,
+      black_pawn3: @black_pawn3,
+      black_pawn4: @black_pawn4,
+      black_pawn5: @black_pawn5,
+      black_pawn6: @black_pawn6,
+      black_pawn7: @black_pawn7,
+      black_pawn8: @black_pawn8
     })
   end
 
 end
-
-  a = Game.new.play_game
-#eof
