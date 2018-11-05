@@ -27,6 +27,7 @@ RSpec.describe Game do
     end
   end
 
+
   describe "#get_piece" do
     it "returns the piece at the given location" do
       game = Game.new
@@ -46,19 +47,10 @@ RSpec.describe Game do
   end
 
   describe "#evaluate_move" do
-    it "warns if the player attempts to move an enemy piece" do
-      game = Game.new
-      game.instance_variable_set(:@turn, 1)
-      expect(game.evaluate_move([0, 6], [0, 5])).to include("can't move other player's piece, ")
-    end
     it "warns if the target is a piece owned by the player" do
       game = Game.new
       game.instance_variable_set(:@turn, 1)
       expect(game.evaluate_move([0, 0], [0, 1])).to include("can't hit own piece, ")
-    end
-    it "warns if attempting to move off the board" do
-      game = Game.new
-      expect(game.evaluate_move([0, 0], [0, -1])).to include("can't move of the board, ")
     end
     it "warns if attempting the wrong move for the piece" do
       game = Game.new
@@ -74,7 +66,20 @@ RSpec.describe Game do
     end
   end
 
-
+  describe "#get_player_coords" do
+    it "returns an array of board coordinates" do
+      game = Game.new
+      $stdin.stub(gets: "d4")
+      expect(game.get_player_coords).to eql([3, 3])
+    end
+    it "can handle unexpected input" do
+      game = Game.new
+      $stdin.stub(gets: "apple")
+      $stdin.stub(gets: 1)
+      $stdin.stub(gets: "d4")
+      expect(game.get_player_coords).to eql([3, 3])
+    end
+  end
 
 
 end

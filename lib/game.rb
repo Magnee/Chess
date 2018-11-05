@@ -75,14 +75,8 @@ class Game
     piece = get_piece(start)
     target = get_piece(finish)
     comment = ""
-    if piece.color != get_player
-      comment += "can't move other player's piece, "
-    end
     if target != nil && target.color == get_player
       comment += "can't hit own piece, "
-    end
-    if piece.legal_position?(finish) == false
-      comment += "can't move of the board, "
     end
     if piece.legal_move?(start, finish) == false
       comment += "piece doesn't move that way, "
@@ -93,42 +87,41 @@ class Game
     return "#{comment}"
   end
 
+  def get_player_coords
+    print "(a1 - h8): "
+    coords = $stdin.gets.chomp.split("")[0, 2]
+    if coords.length == 2 && ("a".."h") === coords[0].downcase && ("0".."7") === coords[1]
+      x = ("a".."h").to_a.index(coords[0])
+      y = coords[1].to_i - 1
+      return [x, y]
+    end
+    get_player_coords
+  end
+
   def get_player_piece
-    start = []
-    puts "Player #{@player.capitalize}, select piece"
-    until (0..7) === start[0]
-      print "Column (a-h): "
-      start[0] = ("a".."h").to_a.index(gets.chomp.downcase)
+    print "Player #{@player.capitalize}, select piece. "
+    piece = get_piece(get_coords)
+    if piece != nil && piece.color == @player
+      return piece
     end
-    until (0..7) === start[1]
-      print "Row (1-8): "
-      start[1] = gets.chomp.to_i - 1
-    end
-    if get_piece(start) == nil
-      puts "Selected empty square"
-      get_player_piece
-    end
-    puts "Selected #{get_piece(start).color.capitalize} #{get_piece(start).type.capitalize} at #{("a".."h").to_a[start[0]]}#{start[1] + 1}"
-    return get_piece(start)
+    puts "Select #{@player.capitalize} piece!"
+    get_player_piece
   end
 
   def get_player_move(piece)
-    finish = []
-    puts "Move #{piece.color.capitalize} #{piece.type.capitalize} to?"
-    until (0..7) === finish[0]
-      print "Column (a-h): "
-      finish[0] = ("a".."h").to_a.index(gets.chomp.downcase)
+    hit = false
+    print "Move #{piece.color.capitalize} #{piece.type.capitalize} to? "
+    target = get_piece(get_player_coords)
+    if target == nil || target.color != @player.color
+      move = [piece.position, target.position]
+      return move
     end
-    until (0..7) === finish[1]
-      print "Row (1-8): "
-      finish[1] = gets.chomp.to_i - 1
-    end
-    target = get_piece(finish) != nil ? "#{get_piece(finish).color.capitalize} #{get_piece(finish).type.capitalize}" : "empty square"
-    puts "Move #{piece.color.capitalize} #{piece.type.capitalize} to #{("a".."h").to_a[finish[0]]}#{finish[1] + 1}: #{target}"
-    return [piece.position, finish]
+    get_player_move(piece)
   end
 
   def make_move(piece, move)
+    print "#{piece.color.capitalize} #{piece.type.capitalize}: "
+    print "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[0][0]]}#{move[1][1] + 1}"
     piece.move_to(move[1])
     @game_board.empty_square(move[0])
     @game_board.place_piece(piece)
