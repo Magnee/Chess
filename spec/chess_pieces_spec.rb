@@ -81,6 +81,10 @@ RSpec.describe ChessPiece do
       queen = Queen.new([3, 3])
       expect(queen.get_path([0, 6])).to eql([[2, 4], [1, 5]])
     end
+    it "doesn't path knights" do
+      knight = Knight.new([3, 3])
+      expect(knight.get_path([4, 5])).to eql([])
+    end
   end
 
   describe "#move_to" do
