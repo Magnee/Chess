@@ -36,6 +36,7 @@ class ChessBoard
       end
       print "\n    -- -- -- -- -- -- -- --"
       puts "\n    a  b  c  d  e  f  g  h \n "
+      puts "Player White"
     elsif player == "black"
       @board.each_with_index do |rank, i|
         print "\n    -- -- -- -- -- -- -- --"
@@ -46,6 +47,7 @@ class ChessBoard
       end
       print "\n    -- -- -- -- -- -- -- --"
       puts "\n    h  g  f  e  d  c  b  a \n "
+      puts "Player Black"
     end
   end
 

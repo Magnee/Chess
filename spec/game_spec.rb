@@ -46,26 +46,6 @@ RSpec.describe Game do
     end
   end
 
-  describe "#evaluate_move" do
-    it "warns if the target is a piece owned by the player" do
-      game = Game.new
-      game.instance_variable_set(:@turn, 1)
-      expect(game.evaluate_move([0, 0], [0, 1])).to include("can't hit own piece, ")
-    end
-    it "warns if attempting the wrong move for the piece" do
-      game = Game.new
-      expect(game.evaluate_move([0, 1], [1, 3])).to include("piece doesn't move that way, ")
-    end
-    it "warns if the move is blocked" do
-      game = Game.new
-      expect(game.evaluate_move([0, 0], [0, 3])).to include("that path is blocked, ")
-    end
-    it "ignores path blocking for knights" do
-      game = Game.new
-      expect(game.evaluate_move([1, 0], [0, 2])).not_to include("that path is blocked, ")
-    end
-  end
-
   describe "#get_player_coords" do
     it "returns an array of board coordinates" do
       game = Game.new

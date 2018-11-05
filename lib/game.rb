@@ -71,57 +71,48 @@ class Game
     false
   end
 
-  def evaluate_move(start, finish)
-    piece = get_piece(start)
-    target = get_piece(finish)
-    comment = ""
-    if target != nil && target.color == get_player
-      comment += "can't hit own piece, "
-    end
-    if piece.legal_move?(start, finish) == false
-      comment += "piece doesn't move that way, "
-    end
-    if blocked_path?(piece.get_path(start, finish)) && piece.type != "knight"
-      comment += "that path is blocked, "
-    end
-    return "#{comment}"
-  end
-
   def get_player_coords
     print "(a1 - h8): "
     coords = $stdin.gets.chomp.split("")[0, 2]
-    if coords.length == 2 && ("a".."h") === coords[0].downcase && ("0".."7") === coords[1]
-      x = ("a".."h").to_a.index(coords[0])
-      y = coords[1].to_i - 1
-      return [x, y]
+    if coords.length == 2 && ("a".."h") === coords[0].downcase && ("1".."8") === coords[1]
+      return [("a".."h").to_a.index(coords[0]), coords[1].to_i - 1]
     end
+    print "Select a square on the board! "
     get_player_coords
   end
 
   def get_player_piece
-    print "Player #{@player.capitalize}, select piece. "
-    piece = get_piece(get_coords)
-    if piece != nil && piece.color == @player
+    print "Select piece. "
+    piece = get_piece(get_player_coords)
+    if piece == nil || piece.color != @player
+      print "Select #{@player.capitalize} piece! "
+      get_player_piece
+    else
       return piece
     end
-    puts "Select #{@player.capitalize} piece!"
-    get_player_piece
   end
 
   def get_player_move(piece)
-    hit = false
     print "Move #{piece.color.capitalize} #{piece.type.capitalize} to? "
-    target = get_piece(get_player_coords)
-    if target == nil || target.color != @player.color
-      move = [piece.position, target.position]
+    move = [piece.position, get_player_coords]
+    target = get_piece(move[1])
+    if target != nil && target.color == @player
+      puts "Select empty square or enemy piece!"
+      get_player_move(piece)
+    elsif piece.possible_move_ends.include?(move[1]) == false
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif blocked_path?(piece.get_path(move[1]))
+      puts "That path is blocked!"
+      get_player_move(piece)
+    else
       return move
     end
-    get_player_move(piece)
   end
 
   def make_move(piece, move)
     print "#{piece.color.capitalize} #{piece.type.capitalize}: "
-    print "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[0][0]]}#{move[1][1] + 1}"
+    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[0][0]]}#{move[1][1] + 1}. "
     piece.move_to(move[1])
     @game_board.empty_square(move[0])
     @game_board.place_piece(piece)
@@ -158,14 +149,8 @@ class Game
   def play_round
     get_player
     @game_board.show_board(@player)
-    a = "no"
-    while a != ""
-      @game_board.show_board(@player) if a != "no"
-      puts a if a != "no"
-      piece = get_player_piece
-      move = get_player_move(piece)
-      a = evaluate_move(move[0], move[1])
-    end
+    piece = get_player_piece
+    move = get_player_move(piece)
     capture(move[1])
     make_move(piece, move)
     check?
