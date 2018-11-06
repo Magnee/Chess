@@ -61,5 +61,15 @@ RSpec.describe Game do
     end
   end
 
+  describe "#get_current_player_options" do
+    it "returns an array of all legal move-options available to the current player" do
+      game = Game.new
+      expect(game.get_current_player_options[0]).to eql([game.instance_variable_get(:@white_knight1), [2, 2]])
+    end
+    it "returns an array of all legal move-options available to the current player" do
+      game = Game.new
+      expect(game.get_current_player_options.length).to eql(20)
+    end
+  end
 
 end

@@ -49,8 +49,8 @@ class Game
       @black_bishop1, @black_bishop2, @black_knight1, @black_knight2,
       @black_pawn1, @black_pawn2, @black_pawn3, @black_pawn4,
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
-    @game_board.place_piece(*@pieces)
     @turn = 1
+    @player = "white"
   end
 
   def get_player
@@ -110,12 +110,25 @@ class Game
     end
   end
 
-  def make_move(piece, move)
-    print "#{piece.color.capitalize} #{piece.type.capitalize}: "
-    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[0][0]]}#{move[1][1] + 1}. "
-    piece.move_to(move[1])
-    @game_board.empty_square(move[0])
-    @game_board.place_piece(piece)
+  def get_current_player_options
+    player_pieces = []
+    @pieces.each{ |piece| player_pieces << piece if piece.color == @player }
+    possible_player_moves = []
+    player_pieces.each do |player_piece|
+      player_piece.possible_move_ends.each do |move_end|
+        target = get_piece(move_end)
+        if target == nil || target.color != @player
+          if blocked_path?(player_piece.get_path(move_end)) == false
+            possible_player_moves << [player_piece, move_end]
+          end
+        end
+      end
+    end
+    possible_player_moves
+  end
+
+  def get_random_piece_and_move
+    random_ai = get_current_player_options.sample
   end
 
   def capture(location)
@@ -124,6 +137,15 @@ class Game
       puts "#{target.color.capitalize} #{target.type.capitalize} captured!"
       @pieces.delete(target)
     end
+  end
+
+  def make_move(piece, move)
+    print "#{piece.color.capitalize} #{piece.type.capitalize}: "
+    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[0][0]]}#{move[1][1] + 1}. "
+    capture(move[1])
+    piece.move_to(move[1])
+    @game_board.empty_square(move[0])
+    @game_board.place_piece(piece)
   end
 
   def check?
@@ -151,12 +173,12 @@ class Game
     @game_board.show_board(@player)
     piece = get_player_piece
     move = get_player_move(piece)
-    capture(move[1])
     make_move(piece, move)
     check?
   end
 
   def play_game
+    @game_board.place_piece(*@pieces)
     loop do
       play_round
       break if mate?
@@ -169,7 +191,7 @@ class Game
     JSON.generate({
       turn: @turn,
       white_king: @white_king,
-      white_quee: @white_queen,
+      white_queen: @white_queen,
       white_rook1: @white_rook1,
       white_rook2: @white_rook2,
       white_bishop1: @white_bishop1,
