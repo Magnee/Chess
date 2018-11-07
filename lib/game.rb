@@ -77,6 +77,10 @@ class Game
     coords = $stdin.gets.chomp.split("")[0, 2]
     if coords.length == 2 && ("a".."h") === coords[0].downcase && ("1".."8") === coords[1]
       return [("a".."h").to_a.index(coords[0]), coords[1].to_i - 1]
+    elsif coords == ["S"]
+      print "Enter save name: "
+      savename = gets.chomp
+      save_game(savename)
     end
     print "Select a square on the board! "
     get_player_coords
@@ -136,13 +140,14 @@ class Game
     target = get_piece(location)
     if target != nil
       puts "#{target.color.capitalize} #{target.type.capitalize} captured!"
+      target.position = [8, 8]
       @pieces.delete(target)
     end
   end
 
   def make_move(piece, move)
     print "#{piece.color.capitalize} #{piece.type.capitalize}: "
-    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[0][0]]}#{move[1][1] + 1}. "
+    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[1][0]]}#{move[1][1] + 1}. "
     capture(move[1])
     piece.move_to(move[1])
     @game_board.empty_square(move[0])
@@ -175,7 +180,6 @@ class Game
     if @player == @ai
       sleep 1
       ai = get_random_piece_and_move
-      puts ai.to_s
       make_move(ai[0], ai[1])
     else
       piece = get_player_piece
@@ -199,39 +203,85 @@ class Game
     JSON.generate({
       ai: @ai,
       turn: @turn,
-      white_king: @white_king,
-      white_queen: @white_queen,
-      white_rook1: @white_rook1,
-      white_rook2: @white_rook2,
-      white_bishop1: @white_bishop1,
-      white_bishop2: @white_bishop2,
-      white_knight1: @white_knight1,
-      white_knight2: @white_knight2,
-      white_pawn1: @white_pawn1,
-      white_pawn2: @white_pawn2,
-      white_pawn3: @white_pawn3,
-      white_pawn4: @white_pawn4,
-      white_pawn5: @white_pawn5,
-      white_pawn6: @white_pawn6,
-      white_pawn7: @white_pawn7,
-      white_pawn8: @white_pawn8,
-      black_king: @black_king,
-      black_queen: @black_queen,
-      black_rook1: @black_rook1,
-      black_rook2: @black_rook2,
-      black_bishop1: @black_bishop1,
-      black_bishop2: @black_bishop2,
-      black_knight1: @black_knight1,
-      black_knight2: @black_knight2,
-      black_pawn1: @black_pawn1,
-      black_pawn2: @black_pawn2,
-      black_pawn3: @black_pawn3,
-      black_pawn4: @black_pawn4,
-      black_pawn5: @black_pawn5,
-      black_pawn6: @black_pawn6,
-      black_pawn7: @black_pawn7,
-      black_pawn8: @black_pawn8
+      white_king: @white_king.position,
+      white_queen: @white_queen.position,
+      white_rook1: @white_rook1.position,
+      white_rook2: @white_rook2.position,
+      white_bishop1: @white_bishop1.position,
+      white_bishop2: @white_bishop2.position,
+      white_knight1: @white_knight1.position,
+      white_knight2: @white_knight2.position,
+      white_pawn1: @white_pawn1.position,
+      white_pawn2: @white_pawn2.position,
+      white_pawn3: @white_pawn3.position,
+      white_pawn4: @white_pawn4.position,
+      white_pawn5: @white_pawn5.position,
+      white_pawn6: @white_pawn6.position,
+      white_pawn7: @white_pawn7.position,
+      white_pawn8: @white_pawn8.position,
+      black_king: @black_king.position,
+      black_queen: @black_queen.position,
+      black_rook1: @black_rook1.position,
+      black_rook2: @black_rook2.position,
+      black_bishop1: @black_bishop1.position,
+      black_bishop2: @black_bishop2.position,
+      black_knight1: @black_knight1.position,
+      black_knight2: @black_knight2.position,
+      black_pawn1: @black_pawn1.position,
+      black_pawn2: @black_pawn2.position,
+      black_pawn3: @black_pawn3.position,
+      black_pawn4: @black_pawn4.position,
+      black_pawn5: @black_pawn5.position,
+      black_pawn6: @black_pawn6.position,
+      black_pawn7: @black_pawn7.position,
+      black_pawn8: @black_pawn8.position,
     })
+  end
+
+  def save_game(savename)
+    Dir.mkdir("saves") unless Dir.exists?("saves")
+    savefile = "saves/#{savename}.txt"
+    File.open(savefile, "w") { |file| file.print serialize }
+    puts "Game '#{savename}' Saved!"
+  end
+
+  def load_game(loadfile)
+    game_data = JSON.parse(File.read(loadfile), {:symbolize_names => true})
+    @ai = game_data[:ai]
+    @turn = game_data[:turn]
+    @white_king.position = game_data[:white_king]
+    @white_queen.position = game_data[:white_queen]
+    @white_rook1.position = game_data[:white_rook1]
+    @white_rook2.position = game_data[:white_rook2]
+    @white_bishop1.position = game_data[:white_bishop1]
+    @white_bishop2.position = game_data[:white_bishop2]
+    @white_knight1.position = game_data[:white_knight1]
+    @white_knight2.position = game_data[:white_knight2]
+    @white_pawn1.position = game_data[:white_pawn1]
+    @white_pawn2.position = game_data[:white_pawn2]
+    @white_pawn3.position = game_data[:white_pawn3]
+    @white_pawn4.position = game_data[:white_pawn4]
+    @white_pawn5.position = game_data[:white_pawn5]
+    @white_pawn6.position = game_data[:white_pawn6]
+    @white_pawn7.position = game_data[:white_pawn7]
+    @white_pawn8.position = game_data[:white_pawn8]
+    @black_king.position = game_data[:black_king]
+    @black_queen.position = game_data[:black_queen]
+    @black_rook1.position = game_data[:black_rook1]
+    @black_rook2.position = game_data[:black_rook2]
+    @black_bishop1.position = game_data[:black_bishop1]
+    @black_bishop2.position = game_data[:black_bishop2]
+    @black_knight1.position = game_data[:black_knight1]
+    @black_knight2.position = game_data[:black_knight2]
+    @black_pawn1.position = game_data[:black_pawn1]
+    @black_pawn2.position = game_data[:black_pawn2]
+    @black_pawn3.position = game_data[:black_pawn3]
+    @black_pawn4.position = game_data[:black_pawn4]
+    @black_pawn5.position = game_data[:black_pawn5]
+    @black_pawn6.position = game_data[:black_pawn6]
+    @black_pawn7.position = game_data[:black_pawn7]
+    @black_pawn8.position = game_data[:black_pawn8]
+    @pieces.delete_if { |piece| piece.position == [8, 8] }
   end
 
 end
