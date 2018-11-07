@@ -4,7 +4,7 @@ require_relative "chess_pieces"
 class Game
   require "json"
 
-  attr_accessor :game_board, :turn
+  attr_accessor :game_board, :turn, :ai
   attr_reader :pieces, :player
 
   def initialize
@@ -51,6 +51,7 @@ class Game
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
     @turn = 1
     @player = "white"
+    @ai = false
   end
 
   def get_player
@@ -112,14 +113,14 @@ class Game
 
   def get_current_player_options
     player_pieces = []
-    @pieces.each{ |piece| player_pieces << piece if piece.color == @player }
+    @pieces.each{ |piece| player_pieces << piece if piece.color == @player}
     possible_player_moves = []
     player_pieces.each do |player_piece|
       player_piece.possible_move_ends.each do |move_end|
         target = get_piece(move_end)
         if target == nil || target.color != @player
           if blocked_path?(player_piece.get_path(move_end)) == false
-            possible_player_moves << [player_piece, move_end]
+            possible_player_moves << [player_piece, [player_piece.position, move_end]]
           end
         end
       end
@@ -128,7 +129,7 @@ class Game
   end
 
   def get_random_piece_and_move
-    random_ai = get_current_player_options.sample
+    return get_current_player_options.sample
   end
 
   def capture(location)
@@ -171,9 +172,16 @@ class Game
   def play_round
     get_player
     @game_board.show_board(@player)
-    piece = get_player_piece
-    move = get_player_move(piece)
-    make_move(piece, move)
+    if @player == @ai
+      sleep 1
+      ai = get_random_piece_and_move
+      puts ai.to_s
+      make_move(ai[0], ai[1])
+    else
+      piece = get_player_piece
+      move = get_player_move(piece)
+      make_move(piece, move)
+    end
     check?
   end
 
@@ -189,6 +197,7 @@ class Game
 
   def serialize
     JSON.generate({
+      ai: @ai,
       turn: @turn,
       white_king: @white_king,
       white_queen: @white_queen,
