@@ -30,26 +30,23 @@ def new_game
   game.play_game
 end
 
-def loadgame(loadfile)
-  puts "Loading #{loadfile[6..-5]}."
-  game = Game.new
-  game.load_game(loadfile)
-  game.play_game
-end
-
 def load_menu
   if Dir["saves/*"] == []
     puts "No saved files!"
     puts "Starting New Game!"
     new_game
+  else
+    puts "Choose saved game number:"
+    Dir["saves/*"].each_with_index { |save, i| puts "#{i + 1}: #{save[6..-5]}" }
+    loadfile = Dir["saves/*"][gets.chomp.to_i - 1]
+    puts "Loading #{loadfile[6..-5]}."
+    game = Game.new
+    game.load_game(loadfile)
+    game.play_game
   end
-  puts "Choose saved game number:"
-  Dir["saves/*"].each_with_index { |save, i| puts "#{i + 1}: #{save[6..-5]}" }
-  loadfile = Dir["saves/*"][gets.chomp.to_i - 1]
-  loadgame(loadfile)
 end
 
-def menu
+def start
   puts "Welcome to Chess"
   print "New game or Load game? "
   choice = gets.chomp.downcase
@@ -60,4 +57,4 @@ def menu
   end
 end
 
-menu
+start
