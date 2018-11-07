@@ -13,10 +13,6 @@ RSpec.describe Game do
       game = Game.new
       expect(game.instance_variable_get(:@black_queen).position).to eql([3, 7])
     end
-    it "places the pieces on the board" do
-      game = Game.new
-      expect(game.instance_variable_get(:@game_board).instance_variable_get(:@board)[0][4]).to eql("\u2654 ")
-    end
   end
 
   describe "#get_player" do
