@@ -115,14 +115,14 @@ class Game
     end
   end
 
-  def get_current_player_options
+  def get_player_options(player = @player)
     player_pieces = []
-    @pieces.each{ |piece| player_pieces << piece if piece.color == @player}
+    @pieces.each{ |piece| player_pieces << piece if piece.color == player}
     possible_player_moves = []
     player_pieces.each do |player_piece|
       player_piece.possible_move_ends.each do |move_end|
         target = get_piece(move_end)
-        if target == nil || target.color != @player
+        if target == nil || target.color != player
           if blocked_path?(player_piece.get_path(move_end)) == false
             possible_player_moves << [player_piece, [player_piece.position, move_end]]
           end
@@ -133,7 +133,7 @@ class Game
   end
 
   def get_random_piece_and_move
-    return get_current_player_options.sample
+    return get_player_options.sample
   end
 
   def capture(location)
