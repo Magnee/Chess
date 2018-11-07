@@ -27,25 +27,27 @@ class ChessBoard
 
   def show_board(player)
     if player == "white"
+      print "\n   \u250c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u2510"
       @board.reverse.each_with_index do |rank, i|
-        print "\n    -- -- -- -- -- -- -- --"
-        print "\n #{8 - i} |"
+        print "\n   \u251c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u2524" if i > 0
+        print "\n #{8 - i} \u2502"
         rank.each do |file|
-          print "#{file}|"
+          print "#{file}\u2502"
         end
       end
-      print "\n    -- -- -- -- -- -- -- --"
+      print "\n   \u2514\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2518"
       puts "\n    a  b  c  d  e  f  g  h \n "
       puts "Player White"
     elsif player == "black"
+      print "\n   \u250c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u252c\u2500\u2500\u2510"
       @board.each_with_index do |rank, i|
-        print "\n    -- -- -- -- -- -- -- --"
-        print "\n #{i + 1} |"
+        print "\n   \u251c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u253c\u2500\u2500\u2524" if i > 0
+        print "\n #{i + 1} \u2502"
         rank.reverse.each do |file|
-          print "#{file}|"
+          print "#{file}\u2502"
         end
       end
-      print "\n    -- -- -- -- -- -- -- --"
+      print "\n   \u2514\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2534\u2500\u2500\u2518"
       puts "\n    h  g  f  e  d  c  b  a \n "
       puts "Player Black"
     end
