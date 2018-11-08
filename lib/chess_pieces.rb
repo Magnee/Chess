@@ -52,6 +52,7 @@ class ChessPiece
 
   def move_to(finish)
     @position = finish
+    @moves = @color == "white" ? [[0, 1]] : [[0, -1]] if @type == "pawn"
   end
 
   def promote
@@ -125,9 +126,9 @@ class Pawn < ChessPiece
     @color = color
     @art = color == "white" ? "\u2659 " : "\u265f "
     if color == "white"
-      @moves = @position[1] == 1 ? [[0, 1], [0, 2]] : [[0, 1]]
-    else
-      @moves = @position[1] == 6 ? [[0, -1], [0, -2]] : [[0, -1]]
+      @moves = [[0, 1], [0, 2]]
+    elsif color == "black"
+      @moves = [[0, -1], [0, -2]]
     end
   end
 end
