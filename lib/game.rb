@@ -132,8 +132,20 @@ class Game
     possible_player_moves
   end
 
-  def get_random_piece_and_move
+  def get_player_hit_options(player = @player)
+    hits = []
+    get_player_options(player).each do |threat|
+      hits << threat if get_piece(threat[1][1]) != nil
+    end
+    hits
+  end
+
+  def get_random_ai_move
     return get_player_options.sample
+  end
+
+  def get_random_ai_hit
+    return get_player_hit_options.sample
   end
 
   def capture(location)
@@ -154,13 +166,13 @@ class Game
     @game_board.place_piece(piece)
   end
 
-  def check?
+  def check?(player = @player)
     check = false
-    @pieces.each do |piece|
-      if piece.color == "white" && piece.possible_move_ends.include?(@black_king.position)
-        check = "black"
-      elsif piece.color == "black" && piece.possible_move_ends.include?(@white_king.position)
-        check = "white"
+    threats = get_player_hit_options(player)
+    threats.each do |threat|
+      target = get_piece(threat[1][1])
+      if target.type == "king" && target.color != player
+        check = player == "white" ? "black" : "white"
       end
     end
     puts "#{check.capitalize} King in check! " unless check == false
@@ -168,6 +180,13 @@ class Game
   end
 
   def mate?
+    save_game("mate_test")
+    get_player_options.each do |option|
+      make_move(option[0], option[1])
+      return false if check? == false
+      load_game("mate_test")
+    end
+    true
   end
 
   def checkmate?
@@ -179,7 +198,7 @@ class Game
     @game_board.show_board(@player)
     if @player == @ai
       sleep 1
-      ai = get_random_piece_and_move
+      ai = get_random_ai_hit == nil ? get_random_ai_move : get_random_ai_hit
       make_move(ai[0], ai[1])
     else
       piece = get_player_piece

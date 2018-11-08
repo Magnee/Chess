@@ -68,4 +68,40 @@ RSpec.describe Game do
     end
   end
 
+  describe "#get_player_hit_options" do
+    it "returns an array of all current legal moves that are also hits" do
+      game = Game.new
+      game.capture([0, 1])
+      game.capture([0, 6])
+      expect(game.get_player_hit_options[0]).to eql([game.instance_variable_get(:@white_rook1), [[0, 0], [0, 7]]])
+    end
+    it "returns an empty array if no hits are possible for the current player" do
+      game = Game.new
+      expect(game.get_player_hit_options).to eql([])
+    end
+  end
+
+  describe "#check?" do
+    it "returns false if no king is in check" do
+      game = Game.new
+      expect(game.check?).to eql(false)
+    end
+    it "returns the player of the king in check" do
+      game = Game.new
+      game.capture([4, 6])
+      game.capture([4, 1])
+      queen = game.instance_variable_get(:@white_queen)
+      game.make_move(queen, [[3, 0], [4, 1]])
+      expect(game.check?).to eql("black")
+    end
+  end
+
+  describe "#mate?" do
+    it "returns false if the current player has move options which do not result in check" do
+      game = Game.new
+      expect(game.mate?).to eql(false)
+    end
+  end
+
+
 end
