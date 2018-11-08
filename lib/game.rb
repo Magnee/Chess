@@ -169,9 +169,9 @@ class Game
   def check_promotion
     @pieces.each do |piece|
       if piece.type == "pawn"
-        if piece.color == "white" && piece.location[1] == 7
+        if piece.color == "white" && piece.position[1] == 7
           piece.promote
-        elsif piece.color == "black" && piece.location[1] == 0
+        elsif piece.color == "black" && piece.position[1] == 0
           piece.promote
         end
       end
@@ -198,8 +198,9 @@ class Game
       make_move(option[0], option[1])
       mate = false if check? == false
       load_game("saves/mate_test.txt")
+      @game_board = ChessBoard.new
+      @game_board.place_piece(*@pieces)
     end
-    load_game("saves/mate_test.txt")
     mate
   end
 
@@ -317,6 +318,14 @@ class Game
     @black_pawn6.position = game_data[:black_pawn6]
     @black_pawn7.position = game_data[:black_pawn7]
     @black_pawn8.position = game_data[:black_pawn8]
+    @pieces = [@white_king, @white_queen, @white_rook1, @white_rook2,
+      @white_bishop1, @white_bishop2, @white_knight1, @white_knight2,
+      @white_pawn1, @white_pawn2, @white_pawn3, @white_pawn4,
+      @white_pawn5, @white_pawn6, @white_pawn7, @white_pawn8,
+      @black_king, @black_queen, @black_rook1, @black_rook2,
+      @black_bishop1, @black_bishop2, @black_knight1, @black_knight2,
+      @black_pawn1, @black_pawn2, @black_pawn3, @black_pawn4,
+      @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
     @pieces.delete_if { |piece| piece.position == [8, 8] }
   end
 
