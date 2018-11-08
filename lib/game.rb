@@ -52,6 +52,7 @@ class Game
     @turn = 1
     @player = "white"
     @ai = false
+    @silent = false
   end
 
   def get_player
@@ -151,15 +152,15 @@ class Game
   def capture(location)
     target = get_piece(location)
     if target != nil
-      puts "#{target.color.capitalize} #{target.type.capitalize} captured!"
+      puts "#{target.color.capitalize} #{target.type.capitalize} captured!" unless @silent == true
       target.position = [8, 8]
       @pieces.delete(target)
     end
   end
 
   def make_move(piece, move)
-    print "#{piece.color.capitalize} #{piece.type.capitalize}: "
-    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[1][0]]}#{move[1][1] + 1}. "
+    print "#{piece.color.capitalize} #{piece.type.capitalize}: " unless @silent == true
+    puts "#{("a".."h").to_a[move[0][0]]}#{move[0][1] + 1} to #{("a".."h").to_a[move[1][0]]}#{move[1][1] + 1}. " unless @silent == true
     capture(move[1])
     piece.move_to(move[1])
     @game_board.empty_square(move[0])
@@ -192,6 +193,7 @@ class Game
   end
 
   def mate?
+    @silent = true
     mate = true
     save_game("mate_test")
     get_player_options.each do |option|
@@ -201,6 +203,7 @@ class Game
       @game_board = ChessBoard.new
       @game_board.place_piece(*@pieces)
     end
+    @silent = false
     mate
   end
 
@@ -279,7 +282,7 @@ class Game
     Dir.mkdir("saves") unless Dir.exists?("saves")
     savefile = "saves/#{savename}.txt"
     File.open(savefile, "w") { |file| file.print serialize }
-    puts "Game '#{savename}' Saved!"
+    puts "Game '#{savename}' Saved!" unless @silent == true
   end
 
   def load_game(loadfile)
