@@ -166,6 +166,18 @@ class Game
     @game_board.place_piece(piece)
   end
 
+  def check_promotion
+    @pieces.each do |piece|
+      if piece.type == "pawn"
+        if piece.color == "white" && piece.location[1] == 7
+          piece.promote
+        elsif piece.color == "black" && piece.location[1] == 0
+          piece.promote
+        end
+      end
+    end
+  end
+
   def check?(player = @player)
     check = false
     threats = get_player_hit_options(player)
@@ -180,13 +192,15 @@ class Game
   end
 
   def mate?
+    mate = true
     save_game("mate_test")
     get_player_options.each do |option|
       make_move(option[0], option[1])
-      return false if check? == false
-      load_game("mate_test")
+      mate = false if check? == false
+      load_game("saves/mate_test.txt")
     end
-    true
+    load_game("saves/mate_test.txt")
+    mate
   end
 
   def checkmate?
@@ -205,7 +219,10 @@ class Game
       move = get_player_move(piece)
       make_move(piece, move)
     end
+    check_promotion
     check?
+    @game_board.show_board(@player)
+    sleep 1
   end
 
   def play_game

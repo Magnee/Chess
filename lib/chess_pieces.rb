@@ -54,6 +54,13 @@ class ChessPiece
     @position = finish
   end
 
+  def promote
+    @type = "queen"
+    @art = color == "white" ? "\u2655 " : "\u265b "
+    @moves = []
+    -7.upto(7) { |m| @moves << [m, 0] << [0, m] << [m, m] << [m, -m]}
+  end
+
 end
 
 
