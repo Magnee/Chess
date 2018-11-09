@@ -182,6 +182,17 @@ class Game
     return get_player_hit_options.sample
   end
 
+  def get_random_ai_check_evasion
+    File.open("lib/temp_check_evasion.txt", "w") { |file| file.print serialize }
+    escapes = []
+    get_player_options(player).each do |option|
+      make_move(option[0], option[1])
+      escapes << option if check?(player) == false
+      load_game("lib/temp_check_evasion.txt")
+    end
+    return escapes.sample
+  end
+
   def capture(location)
     target = get_piece(location)
     if target != nil
@@ -244,9 +255,11 @@ class Game
   end
 
   def play_round
+    check = check?(@player)
     if @player == @ai
       sleep 1
       ai = get_random_ai_hit == nil ? get_random_ai_move : get_random_ai_hit
+      ai = get_random_ai_check_evasion if check == true
       make_move(ai[0], ai[1])
     else
       piece = get_player_piece
