@@ -8,7 +8,11 @@ class Game
   attr_reader :pieces, :player
 
   def initialize
-    @game_board = ChessBoard.new
+    @turn = 1
+    @player = "white"
+    @opponent = "black"
+    @ai = false
+    @silent = false
     @white_king = King.new([4, 0])
     @white_queen = Queen.new([3, 0])
     @white_rook1 = Rook.new([0, 0])
@@ -49,14 +53,13 @@ class Game
       @black_bishop1, @black_bishop2, @black_knight1, @black_knight2,
       @black_pawn1, @black_pawn2, @black_pawn3, @black_pawn4,
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
-    @turn = 1
-    @player = "white"
-    @ai = false
-    @silent = false
+    @game_board = ChessBoard.new
+    @game_board.place_piece(*@pieces)
   end
 
-  def get_player
+  def update_player
     @player = turn%2 != 0 ? "white" : "black"
+    @opponent = @player == "white" ? "black" : "white"
   end
 
   def get_piece(location)
@@ -179,41 +182,38 @@ class Game
     end
   end
 
-  def check?(player = @player)
+  def check?(king)
     check = false
-    threats = get_player_hit_options(player)
+    attacker = king == "white" ? "black" : "white"
+    threats = get_player_hit_options(attacker)
     threats.each do |threat|
       target = get_piece(threat[1][1])
-      if target.type == "king" && target.color != player
-        check = player == "white" ? "black" : "white"
+      if target.type == "king" && target.color == king
+        check = true
       end
     end
-    puts "#{check.capitalize} King in check! " unless check == false
+    puts "#{king.capitalize} King in check! " if check != false && @silent != true
     check
   end
 
-  def mate?
+  def mate?(player)
     @silent = true
     mate = true
-    save_game("mate_test")
-    get_player_options.each do |option|
+    File.open("lib/temp_mate_test.txt", "w") { |file| file.print serialize }
+    get_player_options(player).each do |option|
       make_move(option[0], option[1])
-      mate = false if check? == false
-      load_game("saves/mate_test.txt")
-      @game_board = ChessBoard.new
-      @game_board.place_piece(*@pieces)
+      mate = false if check?(player) == false
+      load_game("lib/temp_mate_test.txt")
     end
     @silent = false
     mate
   end
 
   def checkmate?
-    check? && mate?
+    check?(@player) && mate?(@player)
   end
 
   def play_round
-    get_player
-    @game_board.show_board(@player)
     if @player == @ai
       sleep 1
       ai = get_random_ai_hit == nil ? get_random_ai_move : get_random_ai_hit
@@ -224,7 +224,6 @@ class Game
       make_move(piece, move)
     end
     check_promotion
-    check?
     @game_board.show_board(@player)
     sleep 1
   end
@@ -232,10 +231,13 @@ class Game
   def play_game
     @game_board.place_piece(*@pieces)
     loop do
+      update_player
+      @game_board.show_board(@player)
+      break if mate?(@player)
       play_round
-      break if mate?
       @turn += 1
     end
+    puts "Mate"
     puts "Checkmate" if checkmate?
   end
 
@@ -251,14 +253,14 @@ class Game
       white_bishop2: @white_bishop2.position,
       white_knight1: @white_knight1.position,
       white_knight2: @white_knight2.position,
-      white_pawn1: @white_pawn1.position,
-      white_pawn2: @white_pawn2.position,
-      white_pawn3: @white_pawn3.position,
-      white_pawn4: @white_pawn4.position,
-      white_pawn5: @white_pawn5.position,
-      white_pawn6: @white_pawn6.position,
-      white_pawn7: @white_pawn7.position,
-      white_pawn8: @white_pawn8.position,
+      white_pawn1: [@white_pawn1.position, @white_pawn1.type],
+      white_pawn2: [@white_pawn2.position, @white_pawn2.type],
+      white_pawn3: [@white_pawn3.position, @white_pawn3.type],
+      white_pawn4: [@white_pawn4.position, @white_pawn4.type],
+      white_pawn5: [@white_pawn5.position, @white_pawn5.type],
+      white_pawn6: [@white_pawn6.position, @white_pawn6.type],
+      white_pawn7: [@white_pawn7.position, @white_pawn7.type],
+      white_pawn8: [@white_pawn8.position, @white_pawn8.type],
       black_king: @black_king.position,
       black_queen: @black_queen.position,
       black_rook1: @black_rook1.position,
@@ -267,14 +269,14 @@ class Game
       black_bishop2: @black_bishop2.position,
       black_knight1: @black_knight1.position,
       black_knight2: @black_knight2.position,
-      black_pawn1: @black_pawn1.position,
-      black_pawn2: @black_pawn2.position,
-      black_pawn3: @black_pawn3.position,
-      black_pawn4: @black_pawn4.position,
-      black_pawn5: @black_pawn5.position,
-      black_pawn6: @black_pawn6.position,
-      black_pawn7: @black_pawn7.position,
-      black_pawn8: @black_pawn8.position,
+      black_pawn1: [@black_pawn1.position, @black_pawn1.type],
+      black_pawn2: [@black_pawn2.position, @black_pawn2.type],
+      black_pawn3: [@black_pawn3.position, @black_pawn3.type],
+      black_pawn4: [@black_pawn4.position, @black_pawn4.type],
+      black_pawn5: [@black_pawn5.position, @black_pawn5.type],
+      black_pawn6: [@black_pawn6.position, @black_pawn6.type],
+      black_pawn7: [@black_pawn7.position, @black_pawn7.type],
+      black_pawn8: [@black_pawn8.position, @black_pawn8.type]
     })
   end
 
@@ -289,6 +291,7 @@ class Game
     game_data = JSON.parse(File.read(loadfile), {:symbolize_names => true})
     @ai = game_data[:ai]
     @turn = game_data[:turn]
+    update_player
     @white_king.position = game_data[:white_king]
     @white_queen.position = game_data[:white_queen]
     @white_rook1.position = game_data[:white_rook1]
@@ -297,14 +300,22 @@ class Game
     @white_bishop2.position = game_data[:white_bishop2]
     @white_knight1.position = game_data[:white_knight1]
     @white_knight2.position = game_data[:white_knight2]
-    @white_pawn1.position = game_data[:white_pawn1]
-    @white_pawn2.position = game_data[:white_pawn2]
-    @white_pawn3.position = game_data[:white_pawn3]
-    @white_pawn4.position = game_data[:white_pawn4]
-    @white_pawn5.position = game_data[:white_pawn5]
-    @white_pawn6.position = game_data[:white_pawn6]
-    @white_pawn7.position = game_data[:white_pawn7]
-    @white_pawn8.position = game_data[:white_pawn8]
+    @white_pawn1.position = game_data[:white_pawn1][0]
+    @white_pawn2.position = game_data[:white_pawn2][0]
+    @white_pawn3.position = game_data[:white_pawn3][0]
+    @white_pawn4.position = game_data[:white_pawn4][0]
+    @white_pawn5.position = game_data[:white_pawn5][0]
+    @white_pawn6.position = game_data[:white_pawn6][0]
+    @white_pawn7.position = game_data[:white_pawn7][0]
+    @white_pawn8.position = game_data[:white_pawn8][0]
+    @white_pawn1.promote if game_data[:white_pawn1][1] == "queen"
+    @white_pawn2.promote if game_data[:white_pawn2][1] == "queen"
+    @white_pawn3.promote if game_data[:white_pawn3][1] == "queen"
+    @white_pawn4.promote if game_data[:white_pawn4][1] == "queen"
+    @white_pawn5.promote if game_data[:white_pawn5][1] == "queen"
+    @white_pawn6.promote if game_data[:white_pawn6][1] == "queen"
+    @white_pawn7.promote if game_data[:white_pawn7][1] == "queen"
+    @white_pawn8.promote if game_data[:white_pawn8][1] == "queen"
     @black_king.position = game_data[:black_king]
     @black_queen.position = game_data[:black_queen]
     @black_rook1.position = game_data[:black_rook1]
@@ -313,14 +324,22 @@ class Game
     @black_bishop2.position = game_data[:black_bishop2]
     @black_knight1.position = game_data[:black_knight1]
     @black_knight2.position = game_data[:black_knight2]
-    @black_pawn1.position = game_data[:black_pawn1]
-    @black_pawn2.position = game_data[:black_pawn2]
-    @black_pawn3.position = game_data[:black_pawn3]
-    @black_pawn4.position = game_data[:black_pawn4]
-    @black_pawn5.position = game_data[:black_pawn5]
-    @black_pawn6.position = game_data[:black_pawn6]
-    @black_pawn7.position = game_data[:black_pawn7]
-    @black_pawn8.position = game_data[:black_pawn8]
+    @black_pawn1.position = game_data[:black_pawn1][0]
+    @black_pawn2.position = game_data[:black_pawn2][0]
+    @black_pawn3.position = game_data[:black_pawn3][0]
+    @black_pawn4.position = game_data[:black_pawn4][0]
+    @black_pawn5.position = game_data[:black_pawn5][0]
+    @black_pawn6.position = game_data[:black_pawn6][0]
+    @black_pawn7.position = game_data[:black_pawn7][0]
+    @black_pawn8.position = game_data[:black_pawn8][0]
+    @black_pawn1.promote if game_data[:black_pawn1][1] == "queen"
+    @black_pawn2.promote if game_data[:black_pawn2][1] == "queen"
+    @black_pawn3.promote if game_data[:black_pawn3][1] == "queen"
+    @black_pawn4.promote if game_data[:black_pawn4][1] == "queen"
+    @black_pawn5.promote if game_data[:black_pawn5][1] == "queen"
+    @black_pawn6.promote if game_data[:black_pawn6][1] == "queen"
+    @black_pawn7.promote if game_data[:black_pawn7][1] == "queen"
+    @black_pawn8.promote if game_data[:black_pawn8][1] == "queen"
     @pieces = [@white_king, @white_queen, @white_rook1, @white_rook2,
       @white_bishop1, @white_bishop2, @white_knight1, @white_knight2,
       @white_pawn1, @white_pawn2, @white_pawn3, @white_pawn4,
@@ -330,6 +349,8 @@ class Game
       @black_pawn1, @black_pawn2, @black_pawn3, @black_pawn4,
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
     @pieces.delete_if { |piece| piece.position == [8, 8] }
+    @game_board = ChessBoard.new
+    @game_board.place_piece(*@pieces)
   end
 
 end

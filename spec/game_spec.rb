@@ -16,10 +16,17 @@ RSpec.describe Game do
   end
 
   describe "#get_player" do
-    it "returns the current player (white / black)" do
+    it "sets the current player" do
       game = Game.new
       game.instance_variable_set(:@turn, 7)
-      expect(game.get_player).to eql("white")
+      game.update_player
+      expect(game.instance_variable_get(:@player)).to eql("white")
+    end
+    it "sets the current opponent" do
+      game = Game.new
+      game.instance_variable_set(:@turn, 7)
+      game.update_player
+      expect(game.instance_variable_get(:@opponent)).to eql("black")
     end
   end
 
@@ -71,6 +78,7 @@ RSpec.describe Game do
   describe "#get_player_hit_options" do
     it "returns an array of all current legal moves that are also hits" do
       game = Game.new
+      game.instance_variable_set(:@silent, true)
       game.capture([0, 1])
       game.capture([0, 6])
       expect(game.get_player_hit_options[0]).to eql([game.instance_variable_get(:@white_rook1), [[0, 0], [0, 7]]])
@@ -82,24 +90,47 @@ RSpec.describe Game do
   end
 
   describe "#check?" do
-    it "returns false if no king is in check" do
+    game = true
+    before(:each) do
       game = Game.new
-      expect(game.check?).to eql(false)
-    end
-    it "returns the player of the king in check" do
-      game = Game.new
+      game.instance_variable_set(:@silent, true)
       game.capture([4, 6])
       game.capture([4, 1])
+    end
+    it "returns true if the given player king is in check" do
       queen = game.instance_variable_get(:@white_queen)
       game.make_move(queen, [[3, 0], [4, 1]])
-      expect(game.check?).to eql("black")
+      expect(game.check?("black")).to eql(true)
+    end
+    it "returns false if no king is in check" do
+      expect(game.check?("white")).to eql(false)
+    end
+    it "returns false if the given king is not in check but the enemy king is" do
+      queen = game.instance_variable_get(:@white_queen)
+      game.make_move(queen, [[3, 0], [4, 1]])
+      expect(game.check?("white")).to eql(false)
+    end
+    it "works if called in the attackers turn" do
+      game.instance_variable_set(:@turn, 3)
+      game.update_player
+      queen = game.instance_variable_get(:@white_queen)
+      game.make_move(queen, [[3, 0], [4, 1]])
+      expect(game.check?("black")).to eql(true)
+    end
+    it "works if called in the defenders turn" do
+      game.instance_variable_set(:@turn, 4)
+      game.update_player
+      queen = game.instance_variable_get(:@white_queen)
+      game.make_move(queen, [[3, 0], [4, 1]])
+      expect(game.check?("black")).to eql(true)
     end
   end
 
   describe "#mate?" do
-    it "returns false if the current player has move options which do not result in check" do
+    it "returns true if the given player has no moves that don't result in check" do
       game = Game.new
-      expect(game.mate?).to eql(false)
+      game.load_game("spec/rspec_mate.txt")
+      expect(game.mate?"black").to eql(true)
     end
   end
 
