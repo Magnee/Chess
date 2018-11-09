@@ -52,14 +52,6 @@ class ChessPiece
 
   def move_to(finish)
     @position = finish
-    @moves = @color == "white" ? [[0, 1]] : [[0, -1]] if @type == "pawn"
-  end
-
-  def promote
-    @type = "queen"
-    @art = color == "white" ? "\u2655 " : "\u265b "
-    @moves = []
-    -7.upto(7) { |m| @moves << [m, 0] << [0, m] << [m, m] << [m, -m]}
   end
 
 end
@@ -120,15 +112,21 @@ class Knight < ChessPiece
 end
 
 class Pawn < ChessPiece
+  attr_accessor :position, :moves
+
   def initialize(position = [0, 0], color = "white")
     @type = "pawn"
     @position = position
     @color = color
     @art = color == "white" ? "\u2659 " : "\u265f "
-    if color == "white"
-      @moves = [[0, 1], [0, 2]]
-    elsif color == "black"
-      @moves = [[0, -1], [0, -2]]
-    end
+    @moves = @color == "white" ? [[0, 1], [0, 2]] : [[0, -1], [0, -2]]
   end
+
+  def promote
+    @type = "queen"
+    @art = color == "white" ? "\u2655 " : "\u265b "
+    @moves = []
+    -7.upto(7) { |m| @moves << [m, 0] << [0, m] << [m, m] << [m, -m]}
+  end
+
 end
