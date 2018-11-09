@@ -108,11 +108,33 @@ class Game
     if target != nil && target.color == @player
       puts "Select empty square or enemy piece!"
       get_player_move(piece)
-    elsif piece.possible_move_ends.include?(move[1]) == false
-      puts "Not a valid move for this #{piece.type.capitalize}!"
-      get_player_move(piece)
     elsif blocked_path?(piece.get_path(move[1]))
       puts "That path is blocked!"
+      get_player_move(piece)
+    elsif piece.type != "pawn" && piece.possible_move_ends.include?(move[1]) == false
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+
+    elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == false && piece.possible_hitmove_ends.include?(move[1]) == false && piece.possible_firstmove_ends.include?(move[1]) == false
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == true && target != nil
+      puts "Not a valid hit for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif piece.type == "pawn" && piece.possible_hitmove_ends.include?(move[1]) == true && target == nil
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "white" && piece.position[1] != 1
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] != 6
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "white" && piece.position[1] == 1 && target != nil
+      puts "Not a valid hit for this #{piece.type.capitalize}!"
+      get_player_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] == 6 && target != nil
+      puts "Not a valid hit for this #{piece.type.capitalize}!"
       get_player_move(piece)
     else
       return move
@@ -120,9 +142,9 @@ class Game
   end
 
   def get_player_options(player = @player)
-    player_pieces = []
-    @pieces.each{ |piece| player_pieces << piece if piece.color == player}
     possible_player_moves = []
+    player_pieces = []
+    @pieces.each{ |piece| player_pieces << piece if piece.color == player && piece.type != "pawn"}
     player_pieces.each do |player_piece|
       player_piece.possible_move_ends.each do |move_end|
         target = get_piece(move_end)
@@ -132,6 +154,14 @@ class Game
           end
         end
       end
+    end
+    player_pawns = []
+    @pieces.each{ |piece| player_pawns << piece if piece.color == player && piece.type == "pawn"}
+    player_pawns.each do |pawn|
+      pawn.possible_move_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if get_piece(move_end) == nil }
+      pawn.possible_hitmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if get_piece(move_end) != nil && get_piece(move_end).color != player }
+      pawn.possible_firstmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if pawn.color == "white" && pawn.position[1] == 1 }
+      pawn.possible_firstmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if pawn.color == "black" && pawn.position[1] == 7 }
     end
     possible_player_moves
   end

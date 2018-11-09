@@ -119,7 +119,27 @@ class Pawn < ChessPiece
     @position = position
     @color = color
     @art = color == "white" ? "\u2659 " : "\u265f "
-    @moves = @color == "white" ? [[0, 1], [0, 2]] : [[0, -1], [0, -2]]
+    @moves = @color == "white" ? [[0, 1]] : [[0, -1]]
+    @hitmoves = @color == "white" ? [[-1, 1], [1, 1]] : [[-1, -1], [1, -1]]
+    @firstmoves = @color == "white" ? [[0, 2]] : [[0, -2]]
+  end
+
+  def possible_hitmove_ends(start = self.position)
+    targets = []
+    @hitmoves.each do |move|
+      target = [start[0] + move[0], start[1] + move[1]]
+      targets << target if legal_position?(target)
+    end
+    targets
+  end
+
+  def possible_firstmove_ends(start = self.position)
+    targets = []
+    @firstmoves.each do |move|
+      target = [start[0] + move[0], start[1] + move[1]]
+      targets << target if legal_position?(target)
+    end
+    targets
   end
 
   def promote
