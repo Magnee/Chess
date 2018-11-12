@@ -76,6 +76,16 @@ class Game
     false
   end
 
+  def is_safe_move?(piece, move)
+    @silent = true
+    File.open("lib/temp_save_move_check.txt", "w"){ |file| file.print serialize }
+    make_move(piece, move)
+    safe = check?(@player) == false ? true : false
+    load_game("lib/temp_save_move_check.txt")
+    @silent = false
+    safe
+  end
+
   def get_player_coords
     print "(a1 - h8): "
     coords = $stdin.gets.chomp.split("")[0, 2]
@@ -135,6 +145,9 @@ class Game
     elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] == 6 && target != nil
       puts "Not a valid hit for this #{piece.type.capitalize}!"
       get_player_move(piece)
+    elsif is_safe_move?(piece, move) == false
+      puts "That moves threatens your King!"
+      get_player_move(piece)
     else
       return move
     end
@@ -169,22 +182,26 @@ class Game
   end
 
   def get_random_ai_move
-    return get_player_options.sample
+    random_move = get_player_options.sample
+    return random_move if is_safe_move?(random_move[0], random_move[1])
+    get_random_ai_move
   end
 
   def get_random_ai_hit
-    return get_player_hit_options.sample
+    random_hit = get_player_hit_options.sample
+    return random_hit if is_safe_move?(random_hit[0], random_hit[1])
+    get_random_ai_hit
   end
 
   def get_random_ai_check_evasion
     File.open("lib/temp_check_evasion.txt", "w") { |file| file.print serialize }
     escapes = []
-    get_player_options(player).each do |option|
+    get_player_options(@player).each do |option|
       make_move(option[0], option[1])
-      escapes << option if check?(player) == false
+      escapes << option if check?(@player) == false
       load_game("lib/temp_check_evasion.txt")
     end
-    return escapes.sample
+    escapes.sample
   end
 
   def capture(location)
