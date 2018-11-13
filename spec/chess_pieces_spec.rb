@@ -97,3 +97,26 @@ RSpec.describe ChessPiece do
   end
 
 end
+
+
+RSpec.describe Pawn do
+
+  describe "#promote" do
+    it "gives a pawn the queen type" do
+      pawn = Pawn.new
+      pawn.promote
+      expect(pawn.type).to eql("queen")
+    end
+    it "gives the pawn the queen's art" do
+      pawn = Pawn.new
+      pawn.promote
+      expect(pawn.art).to eql("\u2655 ")
+    end
+    it "gives the pawn the queen's move options" do
+      pawn = Pawn.new
+      pawn.promote
+      expect(pawn.instance_variable_get(:@moves).length).to eql(60)
+    end
+  end
+
+end

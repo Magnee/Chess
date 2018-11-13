@@ -4,6 +4,13 @@ require "./lib/game.rb"
 
 RSpec.describe ChessBoard do
 
+  describe "#initialize" do
+    it "creates an 8 by 8 board of empty fields" do
+      board = ChessBoard.new
+      expect(board.instance_variable_get(:@board)[7][7]).to eql("  ")
+    end
+  end
+
   describe "#empty_square" do
     it "clears the art of a given position" do
       board = ChessBoard.new
