@@ -55,6 +55,7 @@ class Game
       @black_pawn5, @black_pawn6, @black_pawn7, @black_pawn8]
     @game_board = ChessBoard.new
     @game_board.place_piece(*@pieces)
+    @move_log = []
   end
 
   def update_player
@@ -125,13 +126,7 @@ class Game
       puts "That moves threatens your King!"
       get_player_move(piece)
     elsif piece.type == "king" && get_player_castle_options.any?{ |option| option[1][1] == move[1] }
-      get_player_castle_options.each do |option|
-        if move[1] == option[1][1]
-          castle = option[2]
-          castle_move = option[3]
-          return [piece, move, castle, castle_move]
-        end
-      end
+      get_player_castle_options.each { |option| return option if move[1] == option[1][1] }
     elsif piece.type != "pawn" && piece.possible_move_ends.include?(move[1]) == false
       puts "Not a valid move for this #{piece.type.capitalize}!"
       get_player_move(piece)
@@ -141,6 +136,8 @@ class Game
     elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == true && target != nil
       puts "Not a valid hit for this #{piece.type.capitalize}!"
       get_player_move(piece)
+    elsif piece.type == "pawn" && get_player_enpassant_options.any?{ |option| option[1][1] == move[1] }
+      get_player_enpassant_options.each { |option| return option if move[1] == option[1][1] }
     elsif piece.type == "pawn" && piece.possible_hitmove_ends.include?(move[1]) == true && target == nil
       puts "Not a valid move for this #{piece.type.capitalize}!"
       get_player_move(piece)
@@ -176,9 +173,9 @@ class Game
     @pieces.each{ |piece| player_pawns << piece if piece.color == player && piece.type == "pawn"}
     player_pawns.each do |pawn|
       pawn.possible_move_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if get_piece(move_end) == nil }
-      pawn.possible_hitmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if get_piece(move_end) != nil && get_piece(move_end).color != player }
       pawn.possible_firstmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if pawn.color == "white" && pawn.position[1] == 1 }
       pawn.possible_firstmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if pawn.color == "black" && pawn.position[1] == 7 }
+      pawn.possible_hitmove_ends.each{ |move_end| possible_player_moves << [pawn, [pawn.position, move_end]] if get_piece(move_end) != nil && get_piece(move_end).color != player }
     end
     possible_player_moves
   end
@@ -187,6 +184,28 @@ class Game
     hits = []
     get_player_options(player).each { |threat| hits << threat if get_piece(threat[1][1]) != nil }
     hits
+  end
+
+  def get_player_enpassant_options(player = @player)
+    possible_player_enpassants = []
+    player_pawns = []
+    @pieces.each{ |piece| player_pawns << piece if piece.color == player && piece.type == "pawn"}
+    player_pawns.each do |pawn|
+      pawn.possible_hitmove_ends.each do |move_end|
+        hitsquare = player == "white" ? [move_end[0], move_end[1] - 1] : [move_end[0], move_end[1] + 1]
+        target = get_piece(hitsquare)
+        if (player == "white" && pawn.position[1] == 4) || (player == "black" && pawn.position == 3)
+          if get_piece(move_end) == nil && target != nil
+            if target.color != player && target.type == "pawn"
+              if  hitsquare == @move_log[-1][1]
+                possible_player_enpassants << [pawn, [pawn.position, move_end], hitsquare]
+              end
+            end
+          end
+        end
+      end
+    end
+    possible_player_enpassants
   end
 
   def get_player_castle_options(player = @player)
@@ -243,6 +262,13 @@ class Game
     get_random_ai_hit
   end
 
+  def get_random_ai_enpassant
+    random_enpassant = get_player_enpassant_options.sample
+    return nil if random_enpassant == nil
+    return random_enpassant if is_safe_move?(random_enpassant[0], random_enpassant[1])
+    get_random_ai_enpassant
+  end
+
   def get_random_ai_castling
     random_castling = get_player_castle_options.sample
   end
@@ -263,6 +289,7 @@ class Game
     piece.move_to(move[1])
     @game_board.empty_square(move[0])
     @game_board.place_piece(piece)
+    @move_log << move
   end
 
   def check_promotion
@@ -313,6 +340,9 @@ class Game
       sleep 1
       if check?(@player) == true
         ai = get_random_ai_check_evasion
+      elsif get_random_ai_enpassant != nil
+        ai = get_random_ai_enpassant
+        capture(ai[2])
       elsif get_random_ai_hit != nil
         ai = get_random_ai_hit
       elsif get_random_ai_castling != nil
@@ -325,8 +355,8 @@ class Game
     else
       piece = get_player_piece
       play = get_player_move(piece)
-      make_move(play[0], play[1])
       make_move(play[2], play[3]) if play.length == 4
+      make_move(play[0], play[1])
     end
     check_promotion
     @game_board.show_board(@player)
@@ -381,7 +411,8 @@ class Game
       black_pawn5: [@black_pawn5.position, @black_pawn5.type],
       black_pawn6: [@black_pawn6.position, @black_pawn6.type],
       black_pawn7: [@black_pawn7.position, @black_pawn7.type],
-      black_pawn8: [@black_pawn8.position, @black_pawn8.type]
+      black_pawn8: [@black_pawn8.position, @black_pawn8.type],
+      move_log: @move_log
     })
   end
 
@@ -462,6 +493,7 @@ class Game
     @pieces.delete_if { |piece| piece.position == [8, 8] }
     @game_board = ChessBoard.new
     @game_board.place_piece(*@pieces)
+    @move_log = game_data[:move_log]
   end
 
 end
