@@ -249,28 +249,23 @@ class Game
   end
 
   def get_random_ai_move
-    random_move = get_player_options.sample
-    return nil if random_move == nil
-    return random_move if is_safe_move?(random_move[0], random_move[1])
-    get_random_ai_move
+    return nil if get_player_options == []
+    return get_player_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
   end
 
   def get_random_ai_hit
-    random_hit = get_player_hit_options.sample
-    return nil if random_hit == nil
-    return random_hit if is_safe_move?(random_hit[0], random_hit[1])
-    get_random_ai_hit
+    return nil if get_player_hit_options == []
+    return get_player_hit_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
   end
 
   def get_random_ai_enpassant
-    random_enpassant = get_player_enpassant_options.sample
-    return nil if random_enpassant == nil
-    return random_enpassant if is_safe_move?(random_enpassant[0], random_enpassant[1])
-    get_random_ai_enpassant
+    return nil if get_player_enpassant_options == []
+    return get_player_enpassant_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
   end
 
   def get_random_ai_castling
-    random_castling = get_player_castle_options.sample
+    return nil if get_player_castle_options == []
+    return get_player_castle_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
   end
 
   def capture(location)
