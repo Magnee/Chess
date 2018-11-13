@@ -58,22 +58,13 @@ class Game
     @move_log = []
   end
 
-  def update_player
-    @player = turn%2 != 0 ? "white" : "black"
-    @opponent = @player == "white" ? "black" : "white"
-  end
-
   def get_piece(location)
-    @pieces.each do |piece|
-      return piece if piece.position == location
-    end
+    @pieces.each{ |piece| return piece if piece.position == location }
     nil
   end
 
-  def blocked_path?(path_array)
-    path_array.each do |step|
-      return true if get_piece(step)
-    end
+  def is_blocked_path?(path_array)
+    path_array.each{ |step| return true if get_piece(step) }
     false
   end
 
@@ -87,75 +78,9 @@ class Game
     safe
   end
 
-  def get_player_coords
-    print "(a1 - h8): "
-    coords = $stdin.gets.chomp.split("")[0, 2]
-    if coords.length == 2 && ("a".."h") === coords[0].downcase && ("1".."8") === coords[1]
-      return [("a".."h").to_a.index(coords[0]), coords[1].to_i - 1]
-    elsif coords == ["S"]
-      print "Enter save name: "
-      savename = gets.chomp
-      save_game(savename)
-    end
-    print "Select a square on the board! "
-    get_player_coords
-  end
-
-  def get_player_piece
-    print "Select piece. "
-    piece = get_piece(get_player_coords)
-    if piece == nil || piece.color != @player
-      print "Select #{@player.capitalize} piece! "
-      get_player_piece
-    else
-      return piece
-    end
-  end
-
-  def get_player_move(piece)
-    print "Move #{piece.color.capitalize} #{piece.type.capitalize} to? "
-    move = [piece.position, get_player_coords]
-    target = get_piece(move[1])
-    if target != nil && target.color == @player
-      puts "Select empty square or enemy piece!"
-      get_player_move(piece)
-    elsif blocked_path?(piece.get_path(move[1]))
-      puts "That path is blocked!"
-      get_player_move(piece)
-    elsif is_safe_move?(piece, move) == false
-      puts "That moves threatens your King!"
-      get_player_move(piece)
-    elsif piece.type == "king" && get_player_castle_options.any?{ |option| option[1][1] == move[1] }
-      get_player_castle_options.each { |option| return option if move[1] == option[1][1] }
-    elsif piece.type != "pawn" && piece.possible_move_ends.include?(move[1]) == false
-      puts "Not a valid move for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == false && piece.possible_hitmove_ends.include?(move[1]) == false && piece.possible_firstmove_ends.include?(move[1]) == false
-      puts "Not a valid move for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == true && target != nil
-      puts "Not a valid hit for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && get_player_enpassant_options.any?{ |option| option[1][1] == move[1] }
-      get_player_enpassant_options.each { |option| return option if move[1] == option[1][1] }
-    elsif piece.type == "pawn" && piece.possible_hitmove_ends.include?(move[1]) == true && target == nil
-      puts "Not a valid move for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "white" && piece.position[1] != 1
-      puts "Not a valid move for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] != 6
-      puts "Not a valid move for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "white" && piece.position[1] == 1 && target != nil
-      puts "Not a valid hit for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] == 6 && target != nil
-      puts "Not a valid hit for this #{piece.type.capitalize}!"
-      get_player_move(piece)
-    else
-      return [piece, move]
-    end
+  def update_player
+    @player = turn%2 != 0 ? "white" : "black"
+    @opponent = @player == "white" ? "black" : "white"
   end
 
   def get_player_options(player = @player)
@@ -164,7 +89,7 @@ class Game
     @pieces.each{ |piece| player_pieces << piece if piece.color == player && piece.type != "pawn"}
     player_pieces.each do |player_piece|
       player_piece.possible_move_ends.each do |move_end|
-        if (get_piece(move_end) == nil || get_piece(move_end).color != player) && blocked_path?(player_piece.get_path(move_end)) == false
+        if (get_piece(move_end) == nil || get_piece(move_end).color != player) && is_blocked_path?(player_piece.get_path(move_end)) == false
             possible_player_moves << [player_piece, [player_piece.position, move_end]]
         end
       end
@@ -181,9 +106,36 @@ class Game
   end
 
   def get_player_hit_options(player = @player)
-    hits = []
-    get_player_options(player).each { |threat| hits << threat if get_piece(threat[1][1]) != nil }
-    hits
+    possible_player_hits = get_player_options(player).select{ |threat| get_piece(threat[1][1]) != nil }
+  end
+
+  def get_player_castle_options(player = @player)
+    possible_player_castlings = []
+    king = player == "white" ? @white_king : @black_king
+    king.possible_castlemove_ends.each do |move_end|
+      case move_end
+      when [2, 0]
+        castle = @white_rook1
+        castle_end = [3, 0]
+      when [6, 0]
+        castle = @white_rook2
+        castle_end = [5, 0]
+      when [2, 7]
+        castle = @black_rook1
+        castle_end = [3, 7]
+      when [6, 7]
+        castle = @black_rook2
+        castle_end = [5, 7]
+      end
+      if king.hasmoved == false && castle.hasmoved == false
+        if check?(player) == false && is_safe_move?(king, [king.position, king.get_path(king.position, move_end)[0]]) && is_safe_move?(king, [king.position, move_end])
+          if is_blocked_path?(king.get_path(king.position, move_end)) == false && is_blocked_path?(castle.get_path(castle.position, castle_end)) == false
+            possible_player_castlings << [king, [king.position, move_end], castle, [castle.position, castle_end]]
+          end
+        end
+      end
+    end
+  possible_player_castlings
   end
 
   def get_player_enpassant_options(player = @player)
@@ -208,35 +160,6 @@ class Game
     possible_player_enpassants
   end
 
-  def get_player_castle_options(player = @player)
-    possible_player_castlings = []
-    king = player == "white" ? @white_king : @black_king
-    king.possible_castlemove_ends.each do |move_end|
-      case move_end
-      when [2, 0]
-        castle = @white_rook1
-        castle_end = [3, 0]
-      when [6, 0]
-        castle = @white_rook2
-        castle_end = [5, 0]
-      when [2, 7]
-        castle = @black_rook1
-        castle_end = [3, 7]
-      when [6, 7]
-        castle = @black_rook2
-        castle_end = [5, 7]
-      end
-      if king.hasmoved == false && castle.hasmoved == false
-        if check?(player) == false && is_safe_move?(king, [king.position, king.get_path(king.position, move_end)[0]]) && is_safe_move?(king, [king.position, move_end])
-          if blocked_path?(king.get_path(king.position, move_end)) == false && blocked_path?(castle.get_path(castle.position, castle_end)) == false
-            possible_player_castlings << [king, [king.position, move_end], castle, [castle.position, castle_end]]
-          end
-        end
-      end
-    end
-  possible_player_castlings
-  end
-
   def get_random_ai_check_evasion
     File.open("lib/temp_check_evasion.txt", "w") { |file| file.print serialize }
     escapes = []
@@ -258,22 +181,84 @@ class Game
     return get_player_hit_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
   end
 
-  def get_random_ai_enpassant
-    return nil if get_player_enpassant_options == []
-    return get_player_enpassant_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
-  end
-
   def get_random_ai_castling
     return nil if get_player_castle_options == []
     return get_player_castle_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
   end
 
-  def capture(location)
-    target = get_piece(location)
-    if target != nil
-      puts "#{target.color.capitalize} #{target.type.capitalize} captured!" unless @silent == true
-      target.position = [8, 8]
-      @pieces.delete(target)
+  def get_random_ai_enpassant
+    return nil if get_player_enpassant_options == []
+    return get_player_enpassant_options.select{ |option| is_safe_move?(option[0], option[1]) }.sample
+  end
+
+  def get_coords_input
+    print "(a1 - h8): "
+    coords = $stdin.gets.chomp.split("")[0, 2]
+    if coords.length == 2 && ("a".."h") === coords[0].downcase && ("1".."8") === coords[1]
+      return [("a".."h").to_a.index(coords[0]), coords[1].to_i - 1]
+    elsif coords == ["S"]
+      print "Enter save name: "
+      savename = gets.chomp
+      save_game(savename)
+    end
+    print "Select a square on the board! "
+    get_coords_input
+  end
+
+  def get_human_piece_choice
+    print "Select piece. "
+    piece = get_piece(get_coords_input)
+    if piece == nil || piece.color != @player
+      print "Select #{@player.capitalize} piece! "
+      get_human_piece_choice
+    else
+      return piece
+    end
+  end
+
+  def get_human_move(piece)
+    print "Move #{piece.color.capitalize} #{piece.type.capitalize} to? "
+    move = [piece.position, get_coords_input]
+    target = get_piece(move[1])
+    if target != nil && target.color == @player
+      puts "Select empty square or enemy piece!"
+      get_human_move(piece)
+    elsif is_blocked_path?(piece.get_path(move[1]))
+      puts "That path is blocked!"
+      get_human_move(piece)
+    elsif is_safe_move?(piece, move) == false
+      puts "That moves threatens your King!"
+      get_human_move(piece)
+    elsif piece.type == "king" && get_player_castle_options.any?{ |option| option[1][1] == move[1] }
+      get_player_castle_options.each { |option| return option if move[1] == option[1][1] }
+    elsif piece.type != "pawn" && piece.possible_move_ends.include?(move[1]) == false
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == false && piece.possible_hitmove_ends.include?(move[1]) == false && piece.possible_firstmove_ends.include?(move[1]) == false
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && piece.possible_move_ends.include?(move[1]) == true && target != nil
+      puts "Not a valid hit for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && get_player_enpassant_options.any?{ |option| option[1][1] == move[1] }
+      get_player_enpassant_options.each { |option| return option if move[1] == option[1][1] }
+    elsif piece.type == "pawn" && piece.possible_hitmove_ends.include?(move[1]) == true && target == nil
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "white" && piece.position[1] != 1
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] != 6
+      puts "Not a valid move for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "white" && piece.position[1] == 1 && target != nil
+      puts "Not a valid hit for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    elsif piece.type == "pawn" && piece.possible_firstmove_ends.include?(move[1]) == true && piece.color == "black" && piece.position[1] == 6 && target != nil
+      puts "Not a valid hit for this #{piece.type.capitalize}!"
+      get_human_move(piece)
+    else
+      return [piece, move]
     end
   end
 
@@ -287,15 +272,19 @@ class Game
     @move_log << move
   end
 
-  def check_promotion
+  def capture(location)
+    target = get_piece(location)
+    if target != nil
+      puts "#{target.color.capitalize} #{target.type.capitalize} captured!" unless @silent == true
+      target.position = [8, 8]
+      @pieces.delete(target)
+    end
+  end
+
+  def pawn_promotion
     @pieces.each do |piece|
-      if piece.type == "pawn"
-        if piece.color == "white" && piece.position[1] == 7
-          piece.promote
-        elsif piece.color == "black" && piece.position[1] == 0
-          piece.promote
-        end
-      end
+      piece.promote if piece.type == "pawn" && piece.color == "white" && piece.position[1] == 7
+      piece.promote if piece.type == "pawn" && piece.color == "black" && piece.position[1] == 0
     end
   end
 
@@ -348,12 +337,12 @@ class Game
       end
       make_move(ai[0], ai[1])
     else
-      piece = get_player_piece
-      play = get_player_move(piece)
+      piece = get_human_piece_choice
+      play = get_human_move(piece)
       make_move(play[2], play[3]) if play.length == 4
       make_move(play[0], play[1])
     end
-    check_promotion
+    pawn_promotion
     @game_board.show_board(@player)
     sleep 1
   end
