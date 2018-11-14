@@ -63,10 +63,10 @@ class Game
     nil
   end
 
-  def is_moved_square?(coords)
+  def is_moved_square?(location)
     movedsquares = []
     @move_log.each{ |move| movedsquares << move[0] }
-    movedsquares.include?(coords)
+    movedsquares.include?(location)
   end
 
   def is_blocked_path?(path_array)
@@ -299,17 +299,17 @@ class Game
     end
   end
 
-  def check?(king)
+  def check?(player)
     check = false
-    attacker = king == "white" ? "black" : "white"
+    attacker = player == "white" ? "black" : "white"
     threats = get_player_hit_options(attacker)
     threats.each do |threat|
       target = get_piece(threat[1][1])
-      if target.type == "king" && target.color == king
+      if target.type == "king" && target.color == player
         check = true
       end
     end
-    puts "#{king.capitalize} King in check! " if check != false && @silent != true
+    puts "#{player.capitalize} King in check! " if check != false && @silent != true
     check
   end
 

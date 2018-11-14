@@ -66,7 +66,6 @@ class King < ChessPiece
     @color = color
     @art = color == "white" ? "\u2654 " : "\u265a "
     @moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
-    @hasmoved = false
   end
 
   def possible_castlemove_ends
@@ -94,7 +93,6 @@ class Rook < ChessPiece
     @art = color == "white" ? "\u2656 " : "\u265c "
     @moves = []
     -7.upto(7) { |m| @moves << [m, 0] << [0, m] }
-    @hasmoved = false
   end
 end
 
