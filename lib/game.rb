@@ -204,7 +204,7 @@ class Game
   end
 
   def get_coords_input
-    print "(a1 - h8): "
+    print "(a1 - h8): " unless @silent == true
     coords = $stdin.gets.chomp.split("")[0, 2]
     if coords.length == 2 && ("a".."h") === coords[0].downcase && ("1".."8") === coords[1]
       return [("a".."h").to_a.index(coords[0]), coords[1].to_i - 1]
