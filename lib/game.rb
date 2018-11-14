@@ -156,11 +156,12 @@ class Game
     player_pawns.each do |pawn|
       pawn.possible_hitmove_ends.each do |move_end|
         hitsquare = player == "white" ? [move_end[0], move_end[1] - 1] : [move_end[0], move_end[1] + 1]
+        targetstart = player == "white" ? [move_end[0], move_end[1] + 1] : [move_end[0], move_end[1] - 1]
         target = get_piece(hitsquare)
         if (player == "white" && pawn.position[1] == 4) || (player == "black" && pawn.position == 3)
           if get_piece(move_end) == nil && target != nil
             if target.color != player && target.type == "pawn"
-              if  hitsquare == @move_log[-1][1]
+              if  targetstart == @move_log[-1][0] && hitsquare == @move_log[-1][1]
                 possible_player_enpassants << [pawn, [pawn.position, move_end], hitsquare]
               end
             end
