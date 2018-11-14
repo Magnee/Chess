@@ -59,7 +59,6 @@ class ChessPiece
 
 
 class King < ChessPiece
-  attr_accessor :position, :hasmoved
 
   def initialize(position = [0, 0], color = "white")
     @type = "king"
@@ -68,11 +67,6 @@ class King < ChessPiece
     @art = color == "white" ? "\u2654 " : "\u265a "
     @moves = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]
     @hasmoved = false
-  end
-
-  def move_to(finish)
-    @position = finish
-    @hasmoved = true
   end
 
   def possible_castlemove_ends
@@ -93,8 +87,6 @@ class Queen < ChessPiece
 end
 
 class Rook < ChessPiece
-  attr_accessor :position, :hasmoved
-
   def initialize(position = [0, 0], color = "white")
     @type = "rook"
     @position = position
@@ -104,12 +96,6 @@ class Rook < ChessPiece
     -7.upto(7) { |m| @moves << [m, 0] << [0, m] }
     @hasmoved = false
   end
-
-  def move_to(finish)
-    @position = finish
-    @hasmoved = true
-  end
-
 end
 
 class Bishop < ChessPiece

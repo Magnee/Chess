@@ -63,6 +63,12 @@ class Game
     nil
   end
 
+  def is_moved_square?(coords)
+    movedsquares = []
+    @move_log.each{ |move| movedsquares << move[0] }
+    movedsquares.include?(coords)
+  end
+
   def is_blocked_path?(path_array)
     path_array.each{ |step| return true if get_piece(step) }
     false
@@ -112,22 +118,27 @@ class Game
   def get_player_castle_options(player = @player)
     possible_player_castlings = []
     king = player == "white" ? @white_king : @black_king
+    king_start = player == "white" ? [4, 0] : [4, 7]
     king.possible_castlemove_ends.each do |move_end|
       case move_end
       when [2, 0]
         castle = @white_rook1
+        castle_start = [0, 0]
         castle_end = [3, 0]
       when [6, 0]
         castle = @white_rook2
+        castle_start = [7, 0]
         castle_end = [5, 0]
       when [2, 7]
         castle = @black_rook1
+        castle_start = [0, 7]
         castle_end = [3, 7]
       when [6, 7]
         castle = @black_rook2
+        castle_start = [7, 7]
         castle_end = [5, 7]
       end
-      if king.hasmoved == false && castle.hasmoved == false
+      if is_moved_square?(king_start) == false && is_moved_square?(castle_start) == false
         if check?(player) == false && is_safe_move?(king, [king.position, king.get_path(king.position, move_end)[0]]) && is_safe_move?(king, [king.position, move_end])
           if is_blocked_path?(king.get_path(king.position, move_end)) == false && is_blocked_path?(castle.get_path(castle.position, castle_end)) == false
             possible_player_castlings << [king, [king.position, move_end], castle, [castle.position, castle_end]]
@@ -364,10 +375,10 @@ class Game
     JSON.generate({
       ai: @ai,
       turn: @turn,
-      white_king: [@white_king.position, @white_king.hasmoved],
+      white_king: @white_king.position,
       white_queen: @white_queen.position,
-      white_rook1: [@white_rook1.position, @white_rook1.hasmoved],
-      white_rook2: [@white_rook2.position, @white_rook2.hasmoved],
+      white_rook1: @white_rook1.position,
+      white_rook2: @white_rook2.position,
       white_bishop1: @white_bishop1.position,
       white_bishop2: @white_bishop2.position,
       white_knight1: @white_knight1.position,
@@ -380,10 +391,10 @@ class Game
       white_pawn6: [@white_pawn6.position, @white_pawn6.type],
       white_pawn7: [@white_pawn7.position, @white_pawn7.type],
       white_pawn8: [@white_pawn8.position, @white_pawn8.type],
-      black_king: [@black_king.position, @black_king.hasmoved],
+      black_king: @black_king.position,
       black_queen: @black_queen.position,
-      black_rook1: [@black_rook1.position, @black_rook1.hasmoved],
-      black_rook2: [@black_rook2.position, @black_rook2.hasmoved],
+      black_rook1: @black_rook1.position,
+      black_rook2: @black_rook2.position,
       black_bishop1: @black_bishop1.position,
       black_bishop2: @black_bishop2.position,
       black_knight1: @black_knight1.position,
@@ -412,13 +423,10 @@ class Game
     @ai = game_data[:ai]
     @turn = game_data[:turn]
     update_player
-    @white_king.position = game_data[:white_king][0]
-    @white_king.hasmoved = game_data[:white_king][1]
+    @white_king.position = game_data[:white_king]
     @white_queen.position = game_data[:white_queen]
-    @white_rook1.position = game_data[:white_rook1][0]
-    @white_rook2.position = game_data[:white_rook2][0]
-    @white_rook1.hasmoved = game_data[:white_rook1][1]
-    @white_rook2.hasmoved = game_data[:white_rook2][1]
+    @white_rook1.position = game_data[:white_rook1]
+    @white_rook2.position = game_data[:white_rook2]
     @white_bishop1.position = game_data[:white_bishop1]
     @white_bishop2.position = game_data[:white_bishop2]
     @white_knight1.position = game_data[:white_knight1]
@@ -439,13 +447,10 @@ class Game
     @white_pawn6.promote if game_data[:white_pawn6][1] == "queen"
     @white_pawn7.promote if game_data[:white_pawn7][1] == "queen"
     @white_pawn8.promote if game_data[:white_pawn8][1] == "queen"
-    @black_king.position = game_data[:black_king][0]
-    @black_king.hasmoved = game_data[:black_king][1]
+    @black_king.position = game_data[:black_king]
     @black_queen.position = game_data[:black_queen]
-    @black_rook1.position = game_data[:black_rook1][0]
-    @black_rook2.position = game_data[:black_rook2][0]
-    @black_rook1.hasmoved = game_data[:black_rook1][1]
-    @black_rook2.hasmoved = game_data[:black_rook2][1]
+    @black_rook1.position = game_data[:black_rook1]
+    @black_rook2.position = game_data[:black_rook2]
     @black_bishop1.position = game_data[:black_bishop1]
     @black_bishop2.position = game_data[:black_bishop2]
     @black_knight1.position = game_data[:black_knight1]
