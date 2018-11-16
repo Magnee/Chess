@@ -218,7 +218,7 @@ class Game
   end
 
   def get_human_piece_choice
-    print "Select piece. "
+    print "Select piece. " unless @silent == true
     piece = get_piece(get_coords_input)
     if piece == nil || piece.color != @player
       print "Select #{@player.capitalize} piece! "
@@ -229,7 +229,7 @@ class Game
   end
 
   def get_human_move(piece)
-    print "Move #{piece.color.capitalize} #{piece.type.capitalize} to? "
+    print "Move #{piece.color.capitalize} #{piece.type.capitalize} to? " unless @silent == true
     move = [piece.position, get_coords_input]
     target = get_piece(move[1])
     if target != nil && target.color == @player
@@ -288,6 +288,7 @@ class Game
     target = get_piece(location)
     if target != nil
       puts "#{target.color.capitalize} #{target.type.capitalize} captured!" unless @silent == true
+      @game_board.empty_square(location)
       target.position = [8, 8]
       @pieces.delete(target)
     end

@@ -240,6 +240,26 @@ RSpec.describe Game do
     end
   end
 
+  describe "#get_random_ai_check_evasion" do
+    it "returns a move after which the player's king is not in check" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.load_game("spec/rspec_check.txt")
+      escape = game.get_random_ai_check_evasion
+      game.make_move(escape[0], escape[1])
+      expect(game.check?("black")).to eql(false)
+    end
+  end
+
+  describe "#get_random_ai_move" do
+    it "returns nil if no safe moves are available" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.load_game("spec/rspec_mate.txt")
+      expect(game.get_random_ai_move).to eql(nil)
+    end
+  end
+
   describe "#get_coords_input" do
     it "returns an array of board coordinates" do
       game = Game.new
@@ -254,6 +274,106 @@ RSpec.describe Game do
       $stdin.stub(gets: 1)
       $stdin.stub(gets: "d4")
       expect(game.get_coords_input).to eql([3, 3])
+    end
+  end
+
+  describe "#get_human_piece_choice" do
+    it "returns a piece after getting player input" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      $stdin.stub(gets: "d1")
+      expect(game.get_human_piece_choice).to eql(game.instance_variable_get(:@white_queen))
+    end
+  end
+
+  describe "#get_human_move" do
+    it "returns a [piece, move] array after getting a valid move for the piece from the player" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      $stdin.stub(gets: "a4")
+      expect(game.get_human_move(game.instance_variable_get(:@white_pawn1))).to eql([game.instance_variable_get(:@white_pawn1), [[0, 1], [0, 3]]])
+    end
+  end
+
+  describe "#make_move" do
+    it "changes the position of the moved piece" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      pawn = game.instance_variable_get(:@white_pawn5)
+      game.make_move(pawn, [[4, 1], [4, 3]])
+      expect(pawn.instance_variable_get(:@position)).to eql([4, 3])
+    end
+    it "updates the move_log" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      pawn = game.instance_variable_get(:@white_pawn5)
+      game.make_move(pawn, [[4, 1], [4, 3]])
+      expect(game.instance_variable_get(:@move_log)[-1]).to eql([[4, 1], [4, 3]])
+    end
+    it "updates the board art" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      pawn = game.instance_variable_get(:@white_pawn5)
+      game.make_move(pawn, [[4, 1], [4, 3]])
+      expect(game.instance_variable_get(:@game_board).instance_variable_get(:@board)[3][4]).to eql("\u2659 ")
+    end
+    it "captures a piece at the new location" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([0, 1])
+      game.make_move(game.get_piece([0, 0]), [[0, 0], [0, 6]])
+      expect(game.instance_variable_get(:@black_pawn1).instance_variable_get(:@position)).to eql([8, 8])
+    end
+  end
+
+  describe "#capture" do
+    it "moves a piece off the board" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([0, 1])
+      expect(game.instance_variable_get(:@white_pawn1).instance_variable_get(:@position)).to eql([8, 8])
+    end
+    it "removes a piece from the board" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([3, 0])
+      expect(game.instance_variable_get(:@game_board).instance_variable_get(:@board)[0].include?("\u2655 ")).to eql(false)
+    end
+    it "removes a piece from the pieces list" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([0, 1])
+      expect(game.instance_variable_get(:@pieces).include?(game.instance_variable_get(:@white_pawn1))).to eql(false)
+    end
+  end
+
+  describe "#pawn_promotion" do
+    it "promotes a white pawn on rank 8" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([0, 7])
+      pawn = game.instance_variable_get(:@white_pawn1)
+      game.make_move(pawn, [[0, 1], [0, 7]])
+      game.pawn_promotion
+      expect(pawn.instance_variable_get(:@type)).to eql("queen")
+    end
+    it "promotes a black pawn on rank 1" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([0, 0])
+      pawn = game.instance_variable_get(:@black_pawn1)
+      game.make_move(pawn, [[0, 6], [0, 0]])
+      game.pawn_promotion
+      expect(pawn.instance_variable_get(:@type)).to eql("queen")
+    end
+    it "does not promote a white pawn on rank 1" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.capture([0, 0])
+      pawn = game.instance_variable_get(:@white_pawn1)
+      game.make_move(pawn, [[0, 1], [0, 0]])
+      game.pawn_promotion
+      expect(pawn.instance_variable_get(:@type)).to eql("pawn")
     end
   end
 
@@ -299,6 +419,20 @@ RSpec.describe Game do
       game = Game.new
       game.load_game("spec/rspec_mate.txt")
       expect(game.mate?"black").to eql(true)
+    end
+    it "returns false if the given player has safe moves left" do
+      game = Game.new
+      game.load_game("spec/rspec_check.txt")
+      expect(game.mate?"black").to eql(false)
+    end
+  end
+
+  describe "#checkmate?" do
+    it "returns true if both #check? and #mate? return true" do
+      game = Game.new
+      game.instance_variable_set(:@silent, true)
+      game.load_game("spec/rspec_checkmate.txt")
+      expect(game.checkmate?).to eql(true)
     end
   end
 
