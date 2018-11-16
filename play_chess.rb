@@ -1,4 +1,4 @@
-require_relative "lib/game"
+require_relative "lib/chess_game"
 
 def get_ai_color
   puts "Play as White or Black"

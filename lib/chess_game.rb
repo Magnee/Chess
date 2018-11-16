@@ -76,10 +76,10 @@ class Game
 
   def is_safe_move?(piece, move)
     @silent = true
-    File.open("lib/temp_save_move_check.txt", "w"){ |file| file.print serialize }
+    File.open("lib/temp_safemove.txt", "w"){ |file| file.print serialize }
     make_move(piece, move)
     safe = check?(@player) == false ? true : false
-    load_game("lib/temp_save_move_check.txt")
+    load_game("lib/temp_safemove.txt")
     @silent = false
     safe
   end
@@ -173,12 +173,12 @@ class Game
   end
 
   def get_random_ai_check_evasion
-    File.open("lib/temp_check_evasion.txt", "w") { |file| file.print serialize }
+    File.open("lib/temp_checkevasion.txt", "w") { |file| file.print serialize }
     escapes = []
     get_player_options(@player).each do |option|
       make_move(option[0], option[1])
       escapes << option if check?(@player) == false
-      load_game("lib/temp_check_evasion.txt")
+      load_game("lib/temp_checkevasion.txt")
     end
     escapes.sample
   end
@@ -318,11 +318,11 @@ class Game
   def mate?(player)
     @silent = true
     mate = true
-    File.open("lib/temp_mate_test.txt", "w") { |file| file.print serialize }
+    File.open("lib/temp_mate.txt", "w") { |file| file.print serialize }
     get_player_options(player).each do |option|
       make_move(option[0], option[1])
       mate = false if check?(player) == false
-      load_game("lib/temp_mate_test.txt")
+      load_game("lib/temp_mate.txt")
     end
     @silent = false
     mate

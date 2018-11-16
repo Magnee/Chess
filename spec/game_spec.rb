@@ -1,6 +1,6 @@
 require "./lib/chess_board"
 require "./lib/chess_pieces"
-require "./lib/game.rb"
+require "./lib/chess_game.rb"
 
 RSpec.describe Game do
 
